@@ -1,0 +1,22 @@
+---
+- name: Install mongodb services
+  hosts: localhost
+
+  tasks:
+  - name: Import the public key used by the package management system.
+    shell: "wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -"
+
+  - name: Create a list file for MongoDB.
+    shell: "echo \"deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list"
+
+  - name: Upgrade all packages on servers
+    shell: "sudo apt-get update"
+
+  - name: Install the MongoDB packages.
+    shell: "sudo apt-get install -y mongodb-org"
+
+  - name: Start service httpd, if not running
+    shell: "sudo systemctl start mongod"
+
+  - name: Check status of mongod
+    shell: "sudo systemctl status mongod"
