@@ -6,16 +6,16 @@
          range: ^2.9.x
       - reachable:
           - /bakerx
-          - /bakerx/cm/inventory.ini
+          - /bakerx/pipeline/inventory.ini
       - contains: 
           comment: Checking if you have MSDOS style newlines in your bash scripts. Fix with dos2unix
           string: "\r"
           expect: false
-          file: /bakerx/cm/run-ansible.sh
+          file: /bakerx/pipeline/run-ansible.sh
       - contains: 
           string: "\r"
           expect: false
-          file: /bakerx/cm/server-init.sh
+          file: /bakerx/pipeline/server-init.sh
       - reachable:
         - path: .ssh/mm_rsa
           permission: 700

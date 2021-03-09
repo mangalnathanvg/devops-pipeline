@@ -23,7 +23,7 @@ exports.handler = async argv => {
         }
 
         else {
-            console.error(`File or inventory don't exist. Make sure to provide path from root of cm directory`);
+            console.error(`File or inventory don't exist. Make sure to provide path from root of pipeline directory`);
         }
 
     })();
@@ -32,13 +32,13 @@ exports.handler = async argv => {
 
 async function run(file, inventory) {
 
-    // the paths should be from root of cm directory
+    // the paths should be from root of pipeline directory
     // Transforming path of the files in host to the path in VM's shared folder
     let filePath = '/bakerx/'+ file;
     let inventoryPath = '/bakerx/' +inventory;
 
     console.log(chalk.blueBright('Running ansible script...'));
-    let result = sshSync(`/bakerx/cm/run-ansible.sh ${filePath} ${inventoryPath}`, 'vagrant@192.168.33.10');
+    let result = sshSync(`/bakerx/pipeline/run-ansible.sh ${filePath} ${inventoryPath}`, 'vagrant@192.168.33.10');
     if( result.error ) { process.exit( result.status ); }
 
 }

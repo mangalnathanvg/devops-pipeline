@@ -1,7 +1,7 @@
 {
-  "name": "cm",
+  "name": "pipeline",
   "version": "1.0.0",
-  "description": "Template for your hw2.",
+  "description": "DevOps Pipeline > Build Milestone",
   "main": "index.js",
   "bin": "index.js",
   "scripts": {},
