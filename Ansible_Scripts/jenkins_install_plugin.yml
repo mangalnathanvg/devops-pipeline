@@ -1,0 +1,14 @@
+---
+- name: Install Jenkins Plugin
+  hosts: localhost
+  tasks:
+  - name: Retrieve Jenkins unlock code
+    shell: "sudo cat /var/lib/jenkins/secrets/initialAdminPassword"
+    register: adminpwd
+
+  - name: Install Jenkins Plugins
+    jenkins_plugin:
+      name: build-pipeline-plugin
+      url_username: "admin"
+      url_password: "admin"
+      url: "http://192.168.33.20:8080/"
