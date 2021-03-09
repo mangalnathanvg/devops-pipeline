@@ -1,0 +1,41 @@
+---
+- name: Install Jenkins Plugin
+  hosts: localhost
+  vars:
+    username: admin
+    password: admin
+
+  tasks:
+  - name: Retrieve Jenkins unlock code
+    shell: "sudo cat /var/lib/jenkins/secrets/initialAdminPassword"
+    register: adminpwd
+
+  - name: Create a file directory init.groovy.d
+    file:
+      path: /var/lib/jenkins/init.groovy.d
+      state: directory
+    become: yes
+
+  - name: Creating a file with name basic-security.groovy
+    template:
+      src: JinjaTemplates/groovy.j2
+      dest: /var/lib/jenkins/init.groovy.d/basic-security.groovy
+    become: yes
+
+  - name: Restarting the Jenkins service
+    service:
+      name: jenkins
+      state: restarted
+    become: yes
+
+  - name: Waiting for the service jenkins to come up on port 8080
+    wait_for:
+      port: 8080
+      delay: 40
+
+  - name: Install Jenkins Plugins
+    jenkins_plugin:
+      name: build-pipeline-plugin
+      url_username: "admin"
+      url_password: "admin"
+      url: "http://192.168.33.20:8080/"
