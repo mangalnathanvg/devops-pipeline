@@ -41,6 +41,7 @@ async function run(privateKey) {
     result = sshSync('/bakerx/pipeline/server-init.sh', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-
-
+    console.log(chalk.blueBright('Installing Ansible on the spawned VM'));
+    result = sshSync('sudo add-apt-repository ppa:ansible/ansible; sudo apt-get update; sudo apt-get install ansible -y', 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 }
