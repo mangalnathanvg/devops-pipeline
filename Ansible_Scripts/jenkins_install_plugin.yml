@@ -61,20 +61,7 @@
   - name: Waiting for the service jenkins to come up on port 9000
     wait_for:
       port: 9000
-      delay: 40
-
-  - name: Make sure Jenkins service is up.
-    uri:
-      url_username: "admin"
-      url_password: "admin"
-      status_code: 200
-      url: "http://192.168.33.20:9000/"
-      timeout: 5
-    register: jenkins_service_status
-    retries: 50
-    delay: 5
-    until: >
-      'status' in jenkins_service_status and jenkins_service_status['status'] == 200
+      delay: 80
 
   - name: Install Jenkins Plugins
     jenkins_plugin:
@@ -82,3 +69,12 @@
       url_username: "admin"
       url_password: "admin"
       url: "http://192.168.33.20:9000/"
+    retries: 2
+
+  - name: Restarting the Jenkins service
+    service:
+      name: jenkins
+      state: restarted
+    become: yes
+
+
