@@ -1,0 +1,21 @@
+---
+- name: Install Dependencies
+  hosts: localhost
+  vars:
+    username: admin
+    password: admin
+
+  tasks:
+  - name: Installing Nodejs
+    apt: pkg='nodejs' state='present'
+    become: yes
+
+  - name: Install NPM
+    apt: pkg='npm' state='present'
+    become: yes
+
+  - name: Install Java.
+    apt: pkg="openjdk-11-jdk" state='present'
+    become: yes
+
+

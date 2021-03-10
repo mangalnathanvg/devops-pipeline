@@ -6,6 +6,36 @@
     password: admin
 
   tasks:
+  - name: Install Jenkins
+    shell: "wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -"
+    become: yes
+
+  - name: Downloading Jenkins Package
+    shell: "sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'"
+    become: yes
+
+  - name: Apt update.
+    shell: "sudo apt-get update"
+    become: yes
+
+  - name: Install Jenkins.
+    shell: "sudo apt-get install jenkins -y"
+    become: yes
+
+  - name: Changing the port from 8080 to 9000
+    shell: "sudo sed -i 's/8080/9000/' /etc/default/jenkins"
+
+  - name: Restart Jenkins
+    service:
+      name: jenkins
+      state: restarted
+    become: yes
+
+  - name: Wait for the jenkin services to come up.
+    wait_for:
+      port: 9000
+      delay: 40
+
   - name: Retrieve Jenkins unlock code
     shell: "sudo cat /var/lib/jenkins/secrets/initialAdminPassword"
     register: adminpwd
@@ -28,14 +58,27 @@
       state: restarted
     become: yes
 
-  - name: Waiting for the service jenkins to come up on port 8080
+  - name: Waiting for the service jenkins to come up on port 9000
     wait_for:
-      port: 8080
+      port: 9000
       delay: 40
+
+  - name: Make sure Jenkins service is up.
+    uri:
+      url_username: "admin"
+      url_password: "admin"
+      status_code: 200
+      url: "http://192.168.33.20:9000/"
+      timeout: 5
+    register: jenkins_service_status
+    retries: 50
+    delay: 5
+    until: >
+      'status' in jenkins_service_status and jenkins_service_status['status'] == 200
 
   - name: Install Jenkins Plugins
     jenkins_plugin:
       name: build-pipeline-plugin
       url_username: "admin"
       url_password: "admin"
-      url: "http://192.168.33.20:8080/"
+      url: "http://192.168.33.20:9000/"
