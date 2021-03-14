@@ -65,11 +65,95 @@
 
   - name: Install Jenkins Plugins
     jenkins_plugin:
-      name: build-pipeline-plugin
+      name: "{{ item }}"
       url_username: "admin"
       url_password: "admin"
       url: "http://192.168.33.20:9000/"
     retries: 2
+    with_items:
+      - test-stability
+      - junit
+      - pipeline-model-definition
+      - bootstrap4-api
+      - pipeline-model-api
+      - jquery3-api
+      - postbuild-task
+      - workflow-basic-steps
+      - postbuildscript
+      - token-macro
+      - plain-credentials
+      - trilead-api
+      - checks-api
+      - git-server
+      - pipeline-rest-api
+      - build-timeout
+      - script-security
+      - momentjs
+      - git-client
+      - echarts-api
+      - cloudbees-folder
+      - resource-disposer
+      - credentials-binding
+      - ssh-credentials
+      - workflow-aggregator
+      - pipeline-milestone-step
+      - branch-api
+      - popper-api
+      - workflow-job
+      - pipeline-stage-tags-metadata
+      - lockable-resources
+      - jaxb
+      - pipeline-graph-analysis
+      - workflow-api
+      - pipeline-model-extensions
+      - ws-cleanup
+      - workflow-step-api
+      - structs
+      - workflow-durable-task-step
+      - plugin-util-api
+      - display-url-api
+      - apache-httpcomponents-client-4-api
+      - snakeyaml-api
+      - test-stability
+      - git
+      - workflow-scm-step
+      - jackson2-api
+      - ace-editor
+      - mailer
+      - workflow-support
+      - command-launcher
+      - durable-task
+      - handlebars
+      - pipeline-build-step
+      - matrix-project
+      - pipeline-stage-step
+      - jdk-tool
+      - pipeline-input-step
+      - credentials
+      - font-awesome-api
+      - jsch
+      - workflow-cps-global-lib
+      - workflow-cps
+      - scm-api
+      - workflow-multibranch
+      - bouncycastle-api
+      - antisamy-markup-formatter
+      - timestamper
+      - ant
+      - gradle
+      - jjwt-api
+      - okhttp-api
+      - github-api
+      - github
+      - github-branch-source
+      - pipeline-github-lib
+      - ssh-slaves
+      - matrix-auth
+      - pam-auth
+      - ldap
+      - email-ext
+      - sshd
+      - pipeline-stage-view
 
   - name: Restarting the Jenkins service
     service:
