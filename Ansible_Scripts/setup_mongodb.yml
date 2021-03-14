@@ -20,3 +20,32 @@
 
   - name: Check status of mongod
     shell: "sudo systemctl status mongod"
+
+  - name: Install or update pip
+    become: yes
+    apt: pkg='python3-pip'
+
+  - name: Install pymongo
+    become: yes
+    pip:
+      name: pymongo
+      state: latest
+
+  - name: Create MongoDB user
+    mongodb_user:
+      database: admin
+      name: admin
+      password: admin
+      state: present
+
+  - name: Install latest package
+    become: yes
+    with_items:
+      - nodejs
+      - nginx
+      - git
+    apt:
+      name: '{{item}}'
+      state: latest
+      update_cache: yes
+      force: yes
