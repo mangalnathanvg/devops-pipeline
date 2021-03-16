@@ -1,0 +1,16 @@
+---
+- name: Copying the vaul-pass file to directory /home/vagrant/
+  hosts: localhost
+  
+  tasks:
+  - name: Check if .vault-pass file is present
+    local_action: stat path='/bakerx/.vault-pass'
+    register: check
+
+  - name: Copy the .vault-pass file to the home directory of VM.
+    copy:
+      src: '/bakerx/.vault-pass'
+      dest: '~/.vault-pass'
+      mode: 0644
+    when: check.stat.exists
+
