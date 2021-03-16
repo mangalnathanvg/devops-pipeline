@@ -1,9 +1,9 @@
 ---
 - name: Install Dependencies
   hosts: localhost
-  vars:
-    username: admin
-    password: admin
+
+  vars_files: 
+    - ../vars/vars.yml
 
   tasks:
   - name: Installing Nodejs
