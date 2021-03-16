@@ -42,7 +42,7 @@ async function run(privateKey) {
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing Ansible on the spawned VM'));
-    result = sshSync('sudo apt-get update; sudo apt install python3-pip -y; sudo pip3 install ansible', 'vagrant@192.168.33.20');
+    result = sshSync('sudo apt update; sudo apt install python3-pip -y; sudo pip3 install ansible', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
