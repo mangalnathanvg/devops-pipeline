@@ -34,8 +34,9 @@
   - name: Create MongoDB user
     mongodb_user:
       database: admin
-      name: admin
-      password: admin
+      name: "{{ MONGO_USER }}"
+      password: "{{ MONGO_PASSWORD }}"
+      roles: readWrite
       state: present
 
   - name: Install latest package
