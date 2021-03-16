@@ -46,15 +46,19 @@ async function run(privateKey) {
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
-    result = sshSync('ansible-playbook /bakerx/Ansible_scripts/install_dependencies.yml', 'vagrant@192.168.33.20');
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/install_dependencies.yml', 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    
+    console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/copy_vault_pass.yml', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing and Configuring Jenkins'));
-    result = sshSync('ansible-playbook /bakerx/Ansible_scripts/jenkins_install_plugin.yml', 'vagrant@192.168.33.20');
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/jenkins_install_plugin.yml', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing MongoDB'));
-    result = sshSync('ansible-playbook /bakerx/Ansible_scripts/setup_mongodb.yml', 'vagrant@192.168.33.20');
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/setup_mongodb.yml', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
 }
