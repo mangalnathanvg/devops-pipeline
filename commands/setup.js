@@ -42,23 +42,23 @@ async function run(privateKey) {
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing Ansible on the spawned VM'));
-    result = sshSync('sudo add-apt-repository ppa:ansible/ansible; sudo apt-get update; sudo apt-get install ansible -y', 'vagrant@192.168.33.20');
+    result = sshSync('sudo apt-get update; sudo apt install python3-pip -y; sudo pip3 install ansible', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-    console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
-    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/install_dependencies.yml', 'vagrant@192.168.33.20');
-    if( result.error ) { console.log(result.error); process.exit( result.status ); }
-    
     console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
     result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/copy_vault_pass.yml', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
+    console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/install_dependencies.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    
     console.log(chalk.blueBright('Installing and Configuring Jenkins'));
-    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/jenkins_install_plugin.yml', 'vagrant@192.168.33.20');
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/jenkins_install_plugin.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing MongoDB'));
-    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/setup_mongodb.yml', 'vagrant@192.168.33.20');
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/setup_mongodb.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
 }

@@ -1,10 +1,14 @@
 ---
 - name: Install Jenkins Plugin
   hosts: localhost
-  vars:
-    username: admin
-    password: admin
+  
+  vars_files: 
+    - ../vars/vars.yml
 
+  vars:
+    - username: "{{jenkins_username}}"
+    - password: "{{jenkins_password}}"
+    
   tasks:
   - name: Install Jenkins
     shell: "wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -"
@@ -66,9 +70,9 @@
   - name: Install Jenkins Plugins
     jenkins_plugin:
       name: "{{ item }}"
-      url_username: "admin"
-      url_password: "admin"
-      url: "http://192.168.33.20:9000/"
+      url_username: "{{jenkins_username}}"
+      url_password: "{{jenkins_password}}"
+      url: "{{jenkins_url}}"
     retries: 2
     with_items:
       - test-stability
