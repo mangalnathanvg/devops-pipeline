@@ -75,7 +75,6 @@
       url: "{{jenkins_url}}"
     retries: 2
     with_items:
-      - test-stability
       - junit
       - pipeline-model-definition
       - bootstrap4-api
@@ -165,4 +164,8 @@
       state: restarted
     become: yes
 
+  - name: Waiting for the service jenkins to come up on port 9000
+    wait_for:
+      port: 9000
+      delay: 80
 
