@@ -42,6 +42,47 @@
       roles: readWrite
       state: present
 
+  - name: set APP_PORT
+    become: yes
+    lineinfile:
+      path: /etc/environment
+      line: APP_PORT={{APP_PORT}}
+      regex: "^APP_PORT="
+      state: present
+    become: yes
+
+  - name: set MONGO_PORT
+    lineinfile:
+      dest: /etc/environment
+      line: MONGO_PORT={{MONGO_PORT}}
+      regexp: "^MONGO_PORT="
+      state: present
+    become: yes
+
+  - name: set MONGO_USER
+    lineinfile:
+      dest: /etc/environment
+      line: MONGO_USER={{MONGO_USER}}
+      regexp: "^MONGO_USER="
+      state: present
+    become: yes
+
+  - name: set MONGO_PASSWORD
+    lineinfile:
+      dest: /etc/environment
+      line: MONGO_PASSWORD={{MONGO_PASSWORD}}
+      regexp: "^MONGO_PASSWORD="
+      state: present
+    become: yes
+
+  - name: set MONGO_PASSWORD
+    lineinfile:
+      dest: /etc/environment
+      line: MONGO_IP={{MONGO_IP}}
+      regexp: "^MONGO_IP="
+      state: present
+    become: yes
+
   - name: Install latest package
     become: yes
     with_items:
