@@ -94,3 +94,7 @@
       state: latest
       update_cache: yes
       force: yes
+
+  - name: Setting the environment.
+    shell: . /etc/environment
+    become: yes
