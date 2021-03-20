@@ -57,8 +57,13 @@ async function run(privateKey) {
     result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/jenkins_install_plugin.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
+    console.log(chalk.blueBright(' Configuring Jenkins CLI'));
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/jenkins_cli.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
     console.log(chalk.blueBright('Installing MongoDB'));
     result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/setup_mongodb.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
 
 }
