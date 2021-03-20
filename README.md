@@ -9,6 +9,8 @@
 |2. | Niranjan Pandeshwar     |   nrpandes|
 |3. | Sharath Bangalore Ramesh Kumar | sbangal2|
 
+Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects): 
+
 ## Build Milestone
 
 ### General Tasks
@@ -114,9 +116,14 @@ pipeline build checkbox.io -u admin -p admin
 
 ### Screencast
 
-Click here to watch screencast of the project. [here](https://drive.google.com/file/d/1sROAvnjN9UaSy27gTr2zWh3PeqXhAbX6/view?usp=sharing)
+Click [here](https://drive.google.com/file/d/1sROAvnjN9UaSy27gTr2zWh3PeqXhAbX6/view?usp=sharing) to watch screencast of the project.
 
 ### Checkpoint Report
 
 View details about Checkpoint 1 [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/blob/nrpandes/CHECKPOINT.md)
 
+### Note
+
+* Due to host machine specifications, `pipeline setup` might not run successfully. For example, some jenkins plugins might not be installed because of connection timeout. Please ensure that you have a good internet connection and it is recommended to close any other applications that might use up internet speed.
+
+* During screencast, while accessing jenkins dashboard, the browser shows page not found error because we were trying to access the dashboard while jenkins server was restarting.
