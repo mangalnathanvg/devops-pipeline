@@ -75,21 +75,29 @@ pipeline build checkbox.io -u admin -p admin
   
 #### Build Environment for Checkbox.io
 
-* Achieving authentication without storing password was challenging. We made use of ansible vaults to encrypt the DB password and pass it for authentication.
+* Major Learning Outcomes:
 
-* The environment variables required to set up checkbox.io were stored in '/etc/environment' file. Although this file had all the variables needed by checkbox.io, the build job was not making use of the environment file. Since the shell could read the environment file, we ran export commands in the build job script to set the required environment variables.
+  - Learnt how to install and setup mongodb through ansible.
+  - Learnt how to a create and configure a mongoDB user account with readwrite role.
+  - We also learnt how to use `lineinfile` to set up environment variables in a file
+
+* Challenges Faced:
+
+  - Achieving authentication without storing password was challenging. We made use of ansible vaults to encrypt the DB password and pass it for authentication.
+  - The environment variables required to set up checkbox.io were stored in '/etc/environment' file. Although this file had all the variables needed by checkbox.io, the build job was not making use of the environment file. Since the shell could read the environment file, we ran export commands in the build job script to set the required environment variables.
 
 #### Create Build Job
 
-**Challenges:**
+* Major Learning Outcomes:
 
-* One major challenge faced was in setting up environment variables so it reflects in Jenkins shell. We were facing a lot of connection and authentication issues until the Professor posted about using Jenkins authentication tokens in Discord. 
-* Lack of comprehensive resources  in the Internet about using Jenkins effectively. 
+  - We learnt a lot about triggering a jenkins build through `jenkins-job-builder` without any manual intervention like creating Jenkins projects, configuring build step and post build actions.
+  - We also learnt how to define a job (In YAML) using a pipeline style. We perceived a better understanding of the pipeline build stage and feel confident about developing foundation knowledge about the build stage. 
 
-**Major Learning Outcomes:**
 
-* We learnt a lot about triggering a jenkins build through `jenkins-job-builder` without any manual intervention like creating Jenkins projects, configuring build step and post build actions.
-* We also learnt how to define a job (In YAML) using a pipeline style. We perceived a better understanding of the pipeline build stage and feel confident about developing foundation knowledge about the build stage. 
+* Challenges Faced:
+
+  - One major challenge faced was in setting up environment variables so it reflects in Jenkins shell. We were facing a lot of connection and authentication issues until the Professor posted about using Jenkins authentication tokens in Discord. 
+  - Lack of comprehensive resources  in the Internet about using Jenkins effectively. 
 
 
 
