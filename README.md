@@ -7,7 +7,7 @@
 | :---: | :---: | :---: |
 |1. | Mangalnathan Vijayagopal |  mvijaya2|
 |2. | Niranjan Pandeshwar     |   nrpandes|
-|3. | Sharath BR | sbangal2|
+|3. | Sharath Bangalore Ramesh Kumar | sbangal2|
 
 ## Build Milestone
 
