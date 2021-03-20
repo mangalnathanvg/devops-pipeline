@@ -10,16 +10,19 @@
     apt:
       name: jenkins-job-builder
       state: present
+    become: yes
 
   - name: Install jmespath
     pip:
       name: jmespath
       state: present
+    become: yes
 
   - name: Jenkins CLI Download
     get_url:
       url: "{{jenkins_url}}/jnlpJars/jenkins-cli.jar"
       dest: "~/"
       mode: 0755
+    become: yes
 
 

@@ -51,15 +51,18 @@
 
   - name: Execute the command jenkins-job builder
     shell: jenkins-jobs --conf /etc/jenkins_jobs/jenkins_jobs.ini update /bakerx/cm/Ansible_Scripts/build_job.yml
-  
+    become: yes
+
   - name: Running the Build job for Checkbox
     command: java -jar ~/jenkins-cli.jar -s 'http://{{ jenkins_username }}:{{ JENKINS_API_TOKEN }}@localhost:9000/' build checkbox-pipeline-build -s
     ignore_errors: true
-    
+    become: yes
+
   - name: Get the logs and save in the register
     command: java -jar ~/jenkins-cli.jar -s 'http://{{ jenkins_username }}:{{ JENKINS_API_TOKEN }}@localhost:9000/' console checkbox-pipeline-build
     register: log
-    
+    become: yes    
+
   - name: Show log
     debug:
       msg: "{{ log.stdout_lines }}"
