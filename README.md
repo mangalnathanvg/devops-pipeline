@@ -61,7 +61,7 @@ pipeline build checkbox.io -u admin -p admin
   ```
   instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
   ```
-  - To overcome the attentication problem, and have a default login credentials admin/admin to login to the jenkin job builders.
+  - To overcome the autentication problem, and have a default login credentials admin/admin to login to the jenkin job builders.
   - To know what dependent packages should be installed to build a job in jenkins.
   - Using build-pipeline-plugin ansible module, did not help in installing all the required packages, as we frequently faced time out issues. To overcome this we had to manually install suggested plugin by logging into the jenkins GUI and did reverse engineer to figure out what packages were installing using the following command in jenkins cli.
   ```nodejs
