@@ -1,0 +1,3 @@
+---
+  - import_playbook: jenkins_cli.yml
+  - import_playbook: checkbox.io.yml
