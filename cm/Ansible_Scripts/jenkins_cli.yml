@@ -1,5 +1,5 @@
 ---
-- name: Download Jenkins CLI
+- name: Download and Configure Jenkins CLI
   hosts: localhost
   vars_files:
     - ../vars/vars.yml
@@ -7,8 +7,14 @@
   tasks:
 
   - name: Install job builder python package
+    apt:
+      name: jenkins-job-builder
+      state: present
+
+  - name: Install jmespath
     pip:
-      name: ["jenkins-job-builder"]
+      name: jmespath
+      state: present
 
   - name: Jenkins CLI Download
     get_url:
@@ -16,7 +22,4 @@
       dest: "~/"
       mode: 0755
 
-  - name: Copying the Jenkins_job.ini in the directory
-    template:
-      src: 
 

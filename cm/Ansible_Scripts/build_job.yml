@@ -1,0 +1,25 @@
+- job: 
+    name: checkbox-pipeline-build
+    project-type: pipeline 
+    dsl: |
+      node {
+        stage('Source'){
+          cleanWs()
+          sh 'git clone https://github.com/chrisparnin/checkbox.io'
+        }
+        stage('Pre-Build'){
+          sh '. /etc/environment'
+          sh 'export APP_PORT=$APP_PORT'
+          sh 'export MONGO_PORT=$MONGO_PORT'
+          sh 'export MONGO_USER=$MONGO_USER'
+          sh 'export MONGO_PASSWORD=$MONGO_PASSWORD'
+          sh 'export MONGO_IP=$MONGO_IP'
+        }
+        stage('Build'){
+          sh 'npm install --prefix ./checkbox.io/server-side/site/'
+          sh 'pm2 start checkbox.io/server-side/site/server.js'
+        }
+        stage('Test'){
+          sh 'npm test --prefix ./checkbox.io/server-side/site/'
+        }
+      }
