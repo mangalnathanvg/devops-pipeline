@@ -58,17 +58,27 @@ pipeline build checkbox.io -u admin -p admin
 
 #### Create Build Job
 
-* 
+**Challenges:**
+
+* One major challenge faced was in setting up environment variables so it reflects in Jenkins shell. We were facing a lot of connection and authentication issues until the Professor posted about using Jenkins authentication tokens in Discord. 
+* Lack of comprehensive resources  in the Internet about using Jenkins effectively. 
+
+**Major Learning Outcomes:**
+
+* We learnt a lot about triggering a jenkins build through `jenkins-job-builder` without any manual intervention like creating Jenkins projects, configuring build step and post build actions.
+* We also learnt how to define a job (In YAML) using a pipeline style. We perceived a better understanding of the pipeline build stage and feel confident about developing foundation knowledge about the build stage. 
+
+
 
 ### Distribution of Tasks
 
-* Configure a build server with jenkins and ansible - Sharath
+* Configure a build server with jenkins and ansible - Sharath Bangalore Ramesh Kumar
 
-* Configure a build environment for Checkbox.io - Niranjan
+* Configure a build environment for Checkbox.io - Niranjan Pandeshwar
 
-* Create a build job - Mangalnathan
+* Create a build job - Mangalnathan Vijayagopal
 
-* Documentation and Screencast - Mangalnathan, Niranjan, Sharath
+* Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
 
 
 ### Screencast
