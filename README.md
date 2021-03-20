@@ -48,8 +48,31 @@ pipeline build checkbox.io -u admin -p admin
 
 #### Build Server with Jenkins and Ansible
 
-* 
+* Major Learning Outcomes:
+  - Good hands on learning experience on scripting ansible play book.
+  - Jinja Templating interaction with ansible.
+  - Ansible-vault - an efficient way to encrypt secret keys / variable files.
+  - Installation of Jenkins from scratch on a ubuntu machine.
+  - Bypassing registration and setup wizard of jenkins using init.groovy file.
+  - Installation of Jenkins packages/plugins.
 
+* Challenges Faced:
+  - Turning off the jenkins setup wizard using the groovy script placed in the jenkins ini directory.
+  ```
+  instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
+  ```
+  - To overcome the attentication problem, and have a default login credentials admin/admin to login to the jenkin job builders.
+  - To know what dependent packages should be installed to build a job in jenkins.
+  - Using build-pipeline-plugin ansible module, did not help in installing all the required packages, as we frequently faced time out issues. To overcome this we had to manually install suggested plugin by logging into the jenkins GUI and did reverse engineer to figure out what packages were installing using the following command in jenkins cli.
+  ```nodejs
+  Jenkins.instance.pluginManager.plugins.each{
+  plugin -> 
+    println ("${plugin.getDisplayName()} (${plugin.getShortName()}): ${plugin.getVersion()}")
+  }
+  ```
+  
+  - For  building the job in jenkins we needs addition plugins like jenkins job builder, jmespath and download jenkins CLI which was used in build pipeline.
+  
 #### Build Environment for Checkbox.io
 
 * Achieving authentication without storing password was challenging. We made use of ansible vaults to encrypt the DB password and pass it for authentication.
