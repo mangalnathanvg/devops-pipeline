@@ -1,18 +1,23 @@
 - name: Trigger a build job
   hosts: localhost
-  vars_files:
+
+  vars_files: 
     - ../vars/vars.yml
+  
+  vars:
+  - username: "{{user}}"
+  - password: "{{password}}"
 
   tasks:
 
   - name: Generate Crumb for API token (JJS)
-    shell: curl -s --cookie-jar /tmp/cookies -u "{{ jenkins_username }}:{{ jenkins_password }}" {{jenkins_url}}/crumbIssuer/api/json
+    shell: curl -s --cookie-jar /tmp/cookies -u "{{ username }}:{{ password }}" {{jenkins_url}}/crumbIssuer/api/json
     args:
       warn: no
     register: crumb_res
 
   - name: Generate API token
-    shell: curl -X POST -H 'Jenkins-Crumb:{{crumb_res.stdout|from_json|json_query('crumb')}}' --cookie /tmp/cookies {{jenkins_url}}/me/descriptorByName/jenkins.security.ApiTokenProperty/generateNewToken?newTokenName=\checkbox -u "{{ jenkins_username }}:{{ jenkins_password }}"
+    shell: curl -X POST -H 'Jenkins-Crumb:{{crumb_res.stdout|from_json|json_query('crumb')}}' --cookie /tmp/cookies {{jenkins_url}}/me/descriptorByName/jenkins.security.ApiTokenProperty/generateNewToken?newTokenName=\checkbox -u "{{ username }}:{{ password }}"
     args:
       warn: no
     register: api_token
@@ -42,7 +47,7 @@
 
   - name: Wait for jenkins to restart
     uri:
-      url: "http://localhost:9000"
+      url: "{{jenkins_url}}"
       status_code: 200
     register: result
     until: result.status == 200
@@ -54,12 +59,12 @@
     become: yes
 
   - name: Running the Build job for Checkbox
-    command: java -jar ~/jenkins-cli.jar -s 'http://{{ jenkins_username }}:{{ JENKINS_API_TOKEN }}@localhost:9000/' build checkbox-pipeline-build -s
+    command: java -jar ~/jenkins-cli.jar -s 'http://{{ username }}:{{ JENKINS_API_TOKEN }}@{{jenkins_host}}/' build checkbox-pipeline-build -s
     ignore_errors: true
     become: yes
 
   - name: Get the logs and save in the register
-    command: java -jar ~/jenkins-cli.jar -s 'http://{{ jenkins_username }}:{{ JENKINS_API_TOKEN }}@localhost:9000/' console checkbox-pipeline-build
+    command: java -jar ~/jenkins-cli.jar -s 'http://{{ username }}:{{ JENKINS_API_TOKEN }}@{{jenkins_host}}/' console checkbox-pipeline-build
     register: log
     become: yes    
 
