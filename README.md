@@ -37,10 +37,21 @@ Inside DEVOPS-20, run the following commands to spawn build server and run ansib
 ```
 npm install
 npm link
+```
+
+<br />
+
+If `npm link` does not work, then use `npm link --force` instead.
+
+Create a `.vault-pass` file containing the password in the same level as `package.json` before proceeding.
+
+Run the command below to create a new VM and setup build environment in the new VM.
+
+```
 pipeline setup
 ```
 
-Trigger a build job named checkbox.io and print build log.
+After `pipeline setup`, Run the command below to trigger a build job named checkbox.io and print the build log.
 
 ```
 pipeline build checkbox.io -u admin -p admin
