@@ -1,0 +1,8 @@
+---
+- name: Installing dependencies for iTrust and Setting the environment.
+  hosts: localhost
+  vars_files:
+    - vars/vars.yml
+  roles:
+    - maven
+    - mysql
