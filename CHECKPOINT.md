@@ -1,12 +1,8 @@
-[Checkpoint 1](#checkpoint-report-of-team-20---milestone-1) 
+[Checkpoint 1](#checkpoint-report-of-team-20---milestone-1) - **March 9th 2021**
 
-[Checkpoint 2](#checkpoint-report-of-team-20---milestone-2)
-
-<br />
+[Checkpoint 2](#checkpoint-report-of-team-20---milestone-2) - **March 29th 2021**
 
 # Checkpoint Report of Team 20 - Milestone 1
-
-**Due Date: March 9th 2021 **
 
 Following general tasks are being performed as part of checkpoint 1
 
@@ -71,11 +67,9 @@ View project board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20
 
 <img src="Images/checkpoint1.PNG" title="cp1">
 
-
+<br />
 
 # Checkpoint Report of Team 20 - Milestone 2
-
-**Due Date: March 29th 2021**
 
 Following general tasks are being performed as part of milestone 2
 
