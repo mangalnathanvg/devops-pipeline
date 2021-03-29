@@ -3,6 +3,8 @@
   hosts: localhost
   vars_files:
     - vars/vars.yml
+    
   roles:
     - maven
     - mysql
+    - InstallChrome
