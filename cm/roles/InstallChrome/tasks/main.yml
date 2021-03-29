@@ -1,0 +1,13 @@
+---
+- name: Installing Google Chrome Package.
+  get_url:
+    url: "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+    dest: "~/google-chrome-stable_current_amd64.deb"
+  become: yes
+
+- name: Dpkg Google Chrome pakage
+  apt:
+    deb: "~/google-chrome-stable_current_amd64.deb"
+  become: yes
+
+# Reference: https://itsfoss.com/install-chrome-ubuntu/#install-chrome-terminal 

@@ -1,0 +1,9 @@
+---
+- name: Git Credentials environment setting.
+  blockinfile:
+    path: /etc/environment
+    block: |
+      gh_user={{ git_uname }}
+      gh_pass={{ git_passwd }}
+  become: yes
+  state: present
