@@ -77,11 +77,18 @@ Following general tasks are being performed as part of milestone 2
 
 Tasks Completed:
 
-- 
+- Creating build environment for iTrust2-v8. For running iTrust we needs few dependencies to be installed on the config-srv. Ansible scripts were written to install following dependencies.
+  - Installation of python3 pip
+  - Maven
+  - MySQL
+  - git gh-username and gh-password stored in environment file (Used for cloning the iTrust from git repo)
+  - Installation of goolge chrome
+  - Accepting --gh-user <username> --gh-pass <password> from pipeline setup command as a parameter.
 
 Tasks for next checkpoint:
-
-- 
+-  iTrust Build Job.
+-  Enhance pipeline build to accept following parameter iTrust -u <admin> -p <admin> (github credentials.)
+-  Implement cleanup function after the build job.
 
 ## Implement a test suite analysis for detecting useful tests - Niranjan (nrpandes)
 
