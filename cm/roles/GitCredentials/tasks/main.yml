@@ -1,9 +1,9 @@
 ---
-- name: Git Credentials environment setting.
+- name: Add the git credentials environment variables
+  become: yes
   blockinfile:
     path: /etc/environment
     block: |
-      gh_user={{ git_uname }}
-      gh_pass={{ git_passwd }}
-  become: yes
-  state: present
+      GIT_USERNAME={{ git_uname }}
+      GIT_PASSWORD={{ git_passwd }}
+    state: present
