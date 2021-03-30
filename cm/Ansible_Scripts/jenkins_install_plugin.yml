@@ -40,10 +40,6 @@
       port: 9000
       delay: 40
 
-  - name: Retrieve Jenkins unlock code
-    shell: "sudo cat /var/lib/jenkins/secrets/initialAdminPassword"
-    register: adminpwd
-
   - name: Create a file directory init.groovy.d
     file:
       path: /var/lib/jenkins/init.groovy.d
