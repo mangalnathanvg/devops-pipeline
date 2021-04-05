@@ -2,6 +2,7 @@ const esprima = require("esprima");
 const options = {tokens:true, tolerant: true, loc: true, range: true };
 const fs = require("fs");
 const chalk = require('chalk');
+const { builder } = require("../commands/setup");
 
 function main()
 {
@@ -19,12 +20,23 @@ function main()
 	complexity(filePath, builders);
 	console.log( "Complete.");
 
+	var buildFlag = true;
 
 	// Report
 	for( var node in builders )
 	{
 		var builder = builders[node];
 		builder.report();
+		
+		if(builder.blockBuild == true){
+			buildFlag = false;
+		}
+	}
+
+	// Fail build if static analysis failed
+	if(!buildFlag){
+		console.log("Failing build because static analysis failed!");
+		process.exit(1);
 	}
 
 }
@@ -67,7 +79,7 @@ function complexity(filePath, builders)
 			builder.StartLine    = node.loc.start.line;
 			
 			// Method Length - Number of lines
-			builder.Length = node.loc.end.line - node.loc.start.line;
+			builder.Length = node.loc.end.line - node.loc.start.line + 1;
 			
 			// Message Chains - Finding out maximum length of message chain
 			traverseWithParents(node, function(child){
@@ -85,11 +97,47 @@ function complexity(filePath, builders)
 				}
 			});
 	
+			// Max Depth - Count max depth of if statements in a function
+			calculateMaxDepth(node, builder, 0);
+
 			builders[builder.FunctionName] = builder;
 		}
 
 	});
 
+}
+
+function calculateMaxDepth(object, builder, depth){
+	
+	var key, child;
+	
+	for (key in object)
+	{
+		if(object.hasOwnProperty(key))
+		{
+			child = object[key];
+
+			if(typeof child === 'object' && child!==null && key !='parent')
+			{
+				if(key == 'alternate')
+				{
+					calculateMaxDepth(child, builder, depth);
+				}
+				else if(child.type == 'IfStatement')
+				{
+					calculateMaxDepth(child, builder, depth + 1);
+				}
+				else
+				{
+					calculateMaxDepth(child, builder, depth);
+				}
+
+			}
+		}
+	}
+	if(childrenLength(object) == 0){
+		builder.MaxNestingDepth = Math.max(builder.MaxNestingDepth, depth);
+	}
 }
 
 // Represent a reusable "class" following the Builder pattern.
@@ -107,6 +155,9 @@ class FunctionBuilder
 
 		// The max length of message chains in a function
 		this.MaxMessageChains = 0;
+
+		// Flag to decide if build should run or not
+		this.blockBuild = false;
 	}
 
 
@@ -122,19 +173,19 @@ class FunctionBuilder
 		if(this.Length > 100)
 		{
 			console.log("The function " + this.FunctionName + " exceeds 100 LOC. Currently has " + this.Length + " LOC");
-			process.exit(1);
+			builder.blockBuild = true;
 		}
 
 		if(this.MaxMessageChains > 10)
 		{
 			console.log("The function " + this.FunctionName + " contains message chain exceeding max limit(10). Length found: " + this.MaxMessageChains);
-			process.exit(1);	
+			builder.blockBuild = true;
 		}
 
 		if(this.MaxNestingDepth > 5)
 		{
 			console.log("The function " + this.FunctionName + " exceeds Max Nesting depth (5). Nesting Depth reached: " + this.MaxNestingDepth);
-			process.exit(1);
+			builder.blockBuild = true;
 		}
 	}
 };
