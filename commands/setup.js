@@ -13,44 +13,54 @@ exports.builder = yargs => {
         privateKey: {
             describe: 'Install the provided private key on the configuration server',
             type: 'string'
-        }
+        },
+        'gh-user': {
+          describe: 'GitHub username',
+          type: 'string',
+        },
+        'gh-pass': {
+          describe: 'GitHub password',
+          type: 'string',
+        },
     });
 };
 
 
 exports.handler = async argv => {
     const { privateKey } = argv;
+    const username = argv['gh-user'];
+    const password = argv['gh-pass'];
 
     (async () => {
 
-        await run( privateKey );
+        await run( privateKey, username, password);
 
     })();
 
 };
 
-async function run(privateKey) {
+async function run(privateKey, username, password) {
 
     console.log(chalk.greenBright('Installing configuration server!'));
 
     console.log(chalk.blueBright('Provisioning configuration server...'));
-    let result = child.spawnSync(`bakerx`, `run config-srv focal --ip 192.168.33.20 --sync`.split(' '), {shell:true, stdio: 'inherit'} );
+    let result = child.spawnSync(`bakerx`, `run config-srv focal --ip 192.168.33.20 -m 4096 --sync`.split(' '), {shell:true, stdio: 'inherit'} );
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Running init script...'));
-    result = sshSync('/bakerx/pipeline/server-init.sh', 'vagrant@192.168.33.20');
+    result = sshSync('/bakerx/cm/server-init.sh', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-    console.log(chalk.blueBright('Installing Ansible on the spawned VM'));
-    result = sshSync('sudo apt update; sudo apt install python3-pip -y; sudo pip3 install ansible', 'vagrant@192.168.33.20');
-    if( result.error ) { console.log(result.error); process.exit( result.status ); }
-
-    console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
+    console.log(chalk.blueBright('Copying .vault-pass file from host to VM'));
     result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/copy_vault_pass.yml', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.blueBright('Installing NodeJS, NPM and Java'));
     result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/install_dependencies.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
+    console.log(chalk.blueBright('Installing MongoDB'));
+    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/setup_mongodb.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
     
     console.log(chalk.blueBright('Installing and Configuring Jenkins'));
@@ -61,9 +71,11 @@ async function run(privateKey) {
     result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/jenkins_cli.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-    console.log(chalk.blueBright('Installing MongoDB'));
-    result = sshSync('ansible-playbook /bakerx/cm/Ansible_scripts/setup_mongodb.yml --vault-password-file ~/.vault-pass', 'vagrant@192.168.33.20');
+    console.log(chalk.greenBright('Setting environment for ITrust2'));
+    result = sshSync(`ansible-playbook /bakerx/cm/itrust.yml --vault-password-file .vault-pass -e git_uname=${username} -e git_passwd=${password}`, 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
+
 
 
 }
