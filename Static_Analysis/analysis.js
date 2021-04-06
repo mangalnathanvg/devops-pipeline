@@ -2,7 +2,6 @@ const esprima = require("esprima");
 const options = {tokens:true, tolerant: true, loc: true, range: true };
 const fs = require("fs");
 const chalk = require('chalk');
-const { builder } = require("../commands/setup");
 
 function main()
 {
@@ -22,6 +21,20 @@ function main()
 
 	var buildFlag = true;
 
+	var buildLog = "PASS";
+
+	path = './build_status.txt';
+
+	if (!fs.existsSync(path)) {
+		fs.writeFile(path, buildLog, function (err) {		  
+			if (err) throw err;		  	
+		});
+	}
+
+	fs.appendFile('analysis_log.txt', '\n' + "\nFile: " + filePath + '\n', function (err) {		  
+		if (err) throw err;		  	
+	});
+
 	// Report
 	for( var node in builders )
 	{
@@ -35,8 +48,11 @@ function main()
 
 	// Fail build if static analysis failed
 	if(!buildFlag){
-		console.log("Failing build because static analysis failed!");
-		process.exit(1);
+		buildLog = "FAIL"
+		fs.writeFile(path, buildLog, function (err) {		  
+			if (err) throw err;		  
+			console.log('Saved!');		
+		});
 	}
 
 }
@@ -163,30 +179,57 @@ class FunctionBuilder
 
 	report()
 	{
-		console.log(
-			chalk`{blue.underline ${this.FunctionName}}(): starts at Line: ${this.StartLine}\n
-			LongMethod: ${this.Length}\t
-			MaxMessageChains: ${this.MaxMessageChains}\t
-			MaxDepth: ${this.MaxNestingDepth}\n`
-			);
+		// console.log(
+		// 	chalk`{blue.underline ${this.FunctionName}}(): starts at Line: ${this.StartLine}\n
+		// 	\nLongMethod: ${this.Length}\t
+		// 	MaxMessageChains: ${this.MaxMessageChains}\t
+		// 	MaxDepth: ${this.MaxNestingDepth}\n`
+		// 	);
 		
+		var resultLog = `\n${this.FunctionName}(): starts at Line: ${this.StartLine}\n
+		LongMethod: ${this.Length}
+		MaxMessageChains: ${this.MaxMessageChains}
+		MaxDepth: ${this.MaxNestingDepth}\n`;
+
+		fs.appendFile('analysis_log.txt', resultLog, function (err) {
+				if (err) throw err;
+		});
+
+		var violationLog = "";
 		if(this.Length > 100)
 		{
-			console.log("The function " + this.FunctionName + " exceeds 100 LOC. Currently has " + this.Length + " LOC");
-			builder.blockBuild = true;
+			violationLog = "\nVIOLATION: The function " + this.FunctionName + "()" + " exceeds 100 LOC. Currently has " + this.Length + " LOC\n";
+			
+			// fs.appendFile('analysis_log.txt', resultLog, function (err) {
+			// 	if (err) throw err;
+			//   });
+			//console.log("\nThe function " + this.FunctionName + " exceeds 100 LOC. Currently has " + this.Length + " LOC");
+			this.blockBuild = true;
 		}
 
 		if(this.MaxMessageChains > 10)
 		{
-			console.log("The function " + this.FunctionName + " contains message chain exceeding max limit(10). Length found: " + this.MaxMessageChains);
-			builder.blockBuild = true;
+			violationLog = "\nVIOLATION: The function " + this.FunctionName + "()" + " contains message chain exceeding max limit(10). Length found: " + this.MaxMessageChains + '\n';
+			// fs.appendFile('analysis_log.txt', resultLog, function (err) {
+			// 	if (err) throw err;
+			//   });
+			//console.log("\nThe function " + this.FunctionName + " contains message chain exceeding max limit(10). Length found: " + this.MaxMessageChains);
+			this.blockBuild = true;
 		}
 
 		if(this.MaxNestingDepth > 5)
 		{
-			console.log("The function " + this.FunctionName + " exceeds Max Nesting depth (5). Nesting Depth reached: " + this.MaxNestingDepth);
-			builder.blockBuild = true;
+			violationLog = "\nVIOLATION: The function " + this.FunctionName + "()" + " exceeds Max Nesting depth (5). Nesting Depth reached: " + this.MaxNestingDepth + '\n';
+			//console.log("\nThe function " + this.FunctionName + " exceeds Max Nesting depth (5). Nesting Depth reached: " + this.MaxNestingDepth);
+			this.blockBuild = true;
 		}
+
+		if(violationLog!=""){
+			fs.appendFile('analysis_log.txt', violationLog, function (err) {
+				if (err) throw err;
+		});
+		}
+
 	}
 };
 

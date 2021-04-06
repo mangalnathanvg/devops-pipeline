@@ -1,5 +1,5 @@
 ---
-- name: Copying the vaul-pass file to directory /home/vagrant/
+- name: Copying the vaul-pass file and Static Analysis folder to directory /home/vagrant/
   hosts: localhost
   
   tasks:
@@ -13,4 +13,14 @@
       dest: '~/.vault-pass'
       mode: 0644
     when: check.stat.exists
+
+  - name: Copy the Static Analysis folder to config-srv
+    copy:
+      src: '/bakerx/Static_Analysis'
+      dest: '~'
+      mode: 777
+  
+  - name: Setting permissions
+    shell: chmod -R 777 /home/vagrant/Static_Analysis/
+    become: yes
 
