@@ -19,6 +19,13 @@
           sh 'npm install --prefix ./checkbox.io/server-side/site/'
           sh 'pm2 start checkbox.io/server-side/site/server.js'
         }
+        stage('Static Analysis')
+        {
+          sh 'npm install /home/vagrant/Static_Analysis'
+          sh 'node /home/vagrant/Static_Analysis/runAnalysis.js'
+          sh 'cat analysis_log.txt'
+          sh 'node /home/vagrant/Static_Analysis/buildStatus.js'
+        }
         stage('Test'){
           sh 'npm test --prefix ./checkbox.io/server-side/site/'
         }
