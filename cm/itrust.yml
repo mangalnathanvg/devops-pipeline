@@ -5,7 +5,7 @@
     - vars/vars.yml
 
   roles:
-      #    - maven
+    - maven
     - mysql
-      #    - InstallChrome
-      #    - GitCredentials
+    - InstallChrome
+    - GitCredentials
