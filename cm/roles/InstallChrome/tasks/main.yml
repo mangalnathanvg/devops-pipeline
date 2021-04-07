@@ -10,4 +10,8 @@
     deb: "~/google-chrome-stable_current_amd64.deb"
   become: yes
 
+- name: Configure timezone
+  timezone:
+    name: America/New_York
+
 # Reference: https://itsfoss.com/install-chrome-ubuntu/#install-chrome-terminal 
