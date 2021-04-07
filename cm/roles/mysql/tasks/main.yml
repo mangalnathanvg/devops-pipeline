@@ -21,13 +21,12 @@
   apt: 
     name: mysql-server
     state: present
-  
-# - name: Update MySQL root password.
-#   mysql_user:
-#     name: root
-#     password: "{{ mysql_root_pass }}"
-#     state: present
-#   become: yes
+
+- name: Installing PyMySQL
+  become: yes
+  apt:
+    name: ['python3-pymysql']
+    state: present
 
 - name: Install pip, setuptools
   become: yes
@@ -35,6 +34,13 @@
     name: ['python3-pip', 'python-setuptools']
     state: present
     update_cache: yes
+
+# - name: Update MySQL root password.
+#   mysql_user:
+#     name: root
+#     password: "{{ mysql_root_pass }}"
+#     state: present
+#   become: yes
 
 - name: Package Upgrade
   apt:

@@ -1,0 +1,26 @@
+- job:
+    name: itrust-pipeline-build
+    project-type: pipeline
+    dsl: |
+      node {
+        stage('Pre-Build'){
+          cleanWs()
+          sh '. /etc/environment'
+          sh 'export APP_PORT=$APP_PORT'
+          sh 'export MONGO_PORT=$MONGO_PORT'
+          sh 'export MONGO_USER=$MONGO_USER'
+          sh 'export MONGO_PASSWORD=$MONGO_PASSWORD'
+          sh 'export MONGO_IP=$MONGO_IP'
+          sh 'export GIT_USERNAME=$GIT_USERNAME'
+          sh 'export GIT_PASSWORD=$GIT_PASSWORD'
+        }
+        stage('Build'){
+          sh 'git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.ncsu.edu/engr-csc326-staff/iTrust2-v8.git'
+          sh 'yes | cp /bakerx/cm/Ansible_Scripts/JinjaTemplates/pom.xml /var/lib/jenkins/workspace/itrust-pipeline-build/iTrust2-v8/iTrust2/pom.xml'
+          sh 'yes | cp /var/lib/jenkins/workspace/itrust-pipeline-build/iTrust2-v8/iTrust2/src/main/resources/application.yml.template /var/lib/jenkins/workspace/itrust-pipeline-build/iTrust2-v8/iTrust2/src/main/resources/application.yml'
+          sh 'sed -i \'s/    password:/    password: root/g\' /var/lib/jenkins/workspace/itrust-pipeline-build/iTrust2-v8/iTrust2/src/main/resources/application.yml'
+        }
+        stage('Test'){
+          sh '(cd /var/lib/jenkins/workspace/itrust-pipeline-build/iTrust2-v8/iTrust2 && mvn clean test integration-test checkstyle:checkstyle)'
+        }
+      }

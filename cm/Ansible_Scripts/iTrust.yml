@@ -1,0 +1,70 @@
+- name: Trigger an iTrust build job
+  hosts: localhost
+  vars_files: 
+    - ../vars/vars.yml
+  vars:
+  - username: "{{user}}"
+  - password: "{{password}}"
+
+  tasks:
+  - name: Generate Crumb for API token (JJS)
+    shell: curl -s --cookie-jar /tmp/cookies -u "{{ username }}:{{ password }}" {{jenkins_url}}/crumbIssuer/api/json
+    args:
+      warn: no
+    register: crumb_res
+  
+  - name: Generate API token
+    shell: curl -X POST -H 'Jenkins-Crumb:{{crumb_res.stdout|from_json|json_query('crumb')}}' --cookie /tmp/cookies {{jenkins_url}}/me/descriptorByName/jenkins.security.ApiTokenProperty/generateNewToken?newTokenName=\checkbox -u "{{ username }}:{{ password }}"
+    args:
+      warn: no
+    register: api_token
+  
+  - name: Set token variable
+    set_fact:
+      JENKINS_API_TOKEN: "{{api_token.stdout|from_json|json_query('data')|json_query('tokenValue')}}"
+  
+  - name: Copying jenkins_jobs.ini to VM
+    template:
+      src: /bakerx/cm/jenkins_jobs.ini
+      dest: /etc/jenkins_jobs/jenkins_jobs.ini
+    become: yes
+  
+  - name: Write API_TOKEN to jenkins_jobs.ini
+    lineinfile:
+      path: /etc/jenkins_jobs/jenkins_jobs.ini
+      regexp: '^password='
+      line: "password={{ JENKINS_API_TOKEN }}"
+    become: yes
+  
+  - name: Restart jenkins
+    service:
+      name: jenkins
+      state: restarted
+    become: yes
+
+  - name: Wait for jenkins to restart
+    uri:
+      url: "{{jenkins_url}}"
+      status_code: 200
+    register: result
+    until: result.status == 200
+    retries: 60
+    delay: 2
+  
+  - name: Execute the command jenkins-job builder
+    shell: jenkins-jobs --conf /etc/jenkins_jobs/jenkins_jobs.ini update /bakerx/cm/Ansible_Scripts/itrust_build_job.yml
+    become: yes
+  
+  - name: Running the Build job for iTrust
+    command: java -jar ~/jenkins-cli.jar -s 'http://{{ username }}:{{ JENKINS_API_TOKEN }}@{{jenkins_host}}/' build itrust-pipeline-build -s
+    ignore_errors: true
+    become: yes
+
+  - name: Get the logs and save in the register
+    command: java -jar ~/jenkins-cli.jar -s 'http://{{ username }}:{{ JENKINS_API_TOKEN }}@{{jenkins_host}}/' console itrust-pipeline-build
+    register: log
+    become: yes    
+
+  - name: Show log
+    debug:
+      msg: "{{ log.stdout_lines }}"
