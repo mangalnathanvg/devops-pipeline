@@ -43,16 +43,32 @@ pipeline build iTrust -u <admin> -p <admin>
 ### Challenges Faced and Major Learning Outcomes
 
 ####  Configuring the Build environment and build job for a java application.
+
   * Major Learning Outcomes and Challenges Faced:
     - As part of this milestone to checkout the Itrust directory we have to pass the GitHub Credentials by maintaining the confidentiality. 
     - This milestone gave us exposure to project management tool MAVEN. It is build automation tool which is mainly used for java projects.
     - We also learnt regarding configuraing of MySQL on the ubuntu machines using ansible scripts. Also MySQL also depends on other packages like python3-pymysql, python3-pip etc.
-    - Maven project management tool requires google chrome extension
-      
-      
+    - Maven project management tool requires google chrome extension.
+    - The build job process required following steps to run mvn test as part of build process:
+      - Git clone the iTrust2-v8 git repository.
+      - Create application.yml file with root as the password.
+      - Run the following command to initiate the mvn test.
+        ```
+        mvn clean test integration-test checkstyle:checkstyle
+        ```
+    - For code coverage, we used jacoco jenkins plugins.
+        
   * Challenges Faced: 
     - To accomplish accessing github credentials username and password are stored in the local system environment, and these are passed to the code via pipeline setup command as arguments.
-    - Changing the password of the MySQL proved to be little challenging. For changing the password we made use of debconf
+    - Changing the password of the MySQL proved to be little challenging. For changing the password we made use of debconf a configuration system for debian packages. It allows to preconfigure packages before they are installed, which allows to ask for all necessary information upfront. This helped in updating the password.
+    - With jacoco plugin the implementation was confusing since we have to give parameters like - execPattern, classPattern, sourcePattern etc. But referring to following stack overflow link helped us in implementing jacoco as part of the jenkins build job for iTrust.
+    
+####  Static Analysis and code smells
+
+
+#### Fuzzing Test
+    
+    
 
 
 
