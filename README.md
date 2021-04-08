@@ -11,6 +11,51 @@
 
 Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects): 
 
+## Test Milestone
+
+* Automatically configure a build environment and build job for a Java application (iTrust)
+* Implement a test suite analysis for detecting useful tests.
+* Implement a static analysis for detecting code smells.
+
+### Instructions to Setup and Run
+
+1. Please follow Build Milestone steps to:
+  - Automatically configure a build server with jenkins and ansible. 
+  - Automatically configure a build environment for a node web applications (checkbox.io)
+  - Create a build Job
+
+Note: As an enhancement to Milestone 2 the pipeline setup command has been updated as below.
+```
+pipeline setup --gh-user $GIT_USER --gh-pass $GIT_PASS
+```
+Before running above setup command, the $GIT_USER and $GIT_PASS must be configured in the environment system variables in the local machine.
+
+2. Automatically configure a build environment and build job for Java Application (iTrust)
+```
+pipeline build iTrust -u <admin> -p <admin>
+```
+
+3. Implement a test suite analysis for detecting useful tests.
+
+4. Implement a static analysis for detecting code smells.
+
+
+### Challenges Faced and Major Learning Outcomes
+
+####  Configuring the Build environment and build job for a java application.
+  * Major Learning Outcomes and Challenges Faced:
+    - As part of this milestone to checkout the Itrust directory we have to pass the GitHub Credentials by maintaining the confidentiality. 
+    - This milestone gave us exposure to project management tool MAVEN. It is build automation tool which is mainly used for java projects.
+    - We also learnt regarding configuraing of MySQL on the ubuntu machines using ansible scripts. Also MySQL also depends on other packages like python3-pymysql, python3-pip etc.
+    - Maven project management tool requires google chrome extension
+      
+      
+  * Challenges Faced: 
+    - To accomplish accessing github credentials username and password are stored in the local system environment, and these are passed to the code via pipeline setup command as arguments.
+    - Changing the password of the MySQL proved to be little challenging. For changing the password we made use of debconf
+
+
+
 ## Build Milestone
 
 ### General Tasks
