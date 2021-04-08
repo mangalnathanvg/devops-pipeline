@@ -23,4 +23,13 @@
         stage('Test'){
           sh '(cd /var/lib/jenkins/workspace/itrust-pipeline-build/iTrust2-v8/iTrust2 && mvn clean test integration-test checkstyle:checkstyle)'
         }
+        stage('Jacoco'){
+          jacoco(
+            execPattern: '**/target/coverage-reports/**.exec',
+            classPattern: '**/target/classes',
+            sourcePattern: '**/src',
+            inclusionPattern: '**/*.class',
+            changeBuildStatus: true,
+          )
+        }
       }

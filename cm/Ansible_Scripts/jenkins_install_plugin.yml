@@ -153,6 +153,7 @@
       - email-ext
       - sshd
       - pipeline-stage-view
+      - jacoco
 
   - name: Restarting the Jenkins service
     service:

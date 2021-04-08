@@ -13,7 +13,7 @@
       dest: '~/.vault-pass'
       mode: 0644
     when: check.stat.exists
-
+    
   - name: Copy the Static Analysis folder to config-srv
     copy:
       src: '/bakerx/Static_Analysis'

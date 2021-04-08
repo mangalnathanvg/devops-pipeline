@@ -13,5 +13,6 @@
 - name: Configure timezone
   timezone:
     name: America/New_York
+  become: yes
 
 # Reference: https://itsfoss.com/install-chrome-ubuntu/#install-chrome-terminal 
