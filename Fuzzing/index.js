@@ -5,11 +5,11 @@ const fs = require('fs');
 const marqdown = require('./test/marqdown');
 
 // Seed inputs
-let mdA = fs.readFileSync('test/test.md','utf-8');
-let mdB = fs.readFileSync('test/simple.md','utf-8');
+//let mdA = fs.readFileSync('test/test.md','utf-8');
+//let mdB = fs.readFileSync('test/simple.md','utf-8');
 
 let args = process.argv.slice(2);
 const runs = args.length > 0 ? args[0] : 1000;
 
 // Fuzz function 1000 (or given) times, with given seed string inputs.
-mtfuzz(runs, [mdA, mdB], (md) => marqdown.render(md) );
+mtfuzz(runs, ['iTrust2-v8\\iTrust2\\src\\main\\java\\edu\\ncsu\\csc\\iTrust2'], (md) => marqdown.render(md) );
