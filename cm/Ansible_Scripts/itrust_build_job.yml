@@ -33,3 +33,5 @@
           )
         }
       }
+
+# For jacoco reference: https://stackoverflow.com/questions/41893846/jacoco-coverage-in-jenkins-pipeline
