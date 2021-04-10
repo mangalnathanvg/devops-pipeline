@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 var validFileExtensions = ["java"];
 
-
 const read = (dir) =>
     fs.readdirSync(dir)
     .reduce(function(files, file) {
@@ -25,23 +24,19 @@ const read = (dir) =>
 
 function mutateString (mutator, value) {
     var listOfFiles = read(value);
-    console.log(listOfFiles);
     sel_file_idx = mutator.random().integer(0,value.length)
-    console.log(sel_file_idx);
     let val = fs.readFileSync(listOfFiles[sel_file_idx],'utf-8');
-    console.log(listOfFiles[sel_file_idx]);
     fs.writeFileSync(listOfFiles[sel_file_idx],'','utf8');
     //let mdB = fs.readFileSync('test/simple.md','utf-8');
     //var array = val.split('');
     var lines = val.split("\n");
     
     lines.forEach(function(line) {
-        if( mutator.random().bool(1) )
+        if( mutator.random().bool(0.1) )
         {
             // Step 1. Randomly remove a random set of characters, from a random start position.
             let words = line.split(' ');
                 for(var i=0; i < words.length; i++){
-                    console.log(words);
                     if(words[i]==">")
                     {
                         words[i] = "<";
@@ -72,16 +67,30 @@ function mutateString (mutator, value) {
                     {
                         words[i] = "0";
                     }
+                    else if(words[i] == "true")
+                    {
+                        words[i] = "false";
+                    }
+                    else if(words[i] == "false")
+                    {
+                        words[i] = "true";
+                    }
+                    else if(words[i] == "&&")
+                    {
+                        words[i] = "||";
+                    }
+                    else if(words[i] == "||")
+                    {
+                        words[i] == "&&";
+                    }
                     
                 }  
                 line = words.join(" ");
-                console.log(line);
         }
         if(line != '\r'){
             line += '\n';
         }    
         //fs.appendFileSync(val, line)
-        console.log(line);
         fs.appendFileSync(listOfFiles[sel_file_idx], line);
     })
     return lines.join('');
