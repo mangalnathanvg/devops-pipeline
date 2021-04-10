@@ -23,6 +23,9 @@
         stage('Test'){
           sh '(cd ./iTrust2-v8/iTrust2 && mvn clean test integration-test checkstyle:checkstyle)'
         }
+        stage('Remove Database'){
+          sh 'mysql -u root -p$DB_PASS < /bakerx/cm/Ansible_Scripts/JinjaTemplates/database.sql'
+        }
         stage('Jacoco'){
           jacoco(
             execPattern: '**/target/coverage-reports/**.exec',
