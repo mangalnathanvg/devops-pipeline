@@ -22,7 +22,7 @@ const getAllFiles = function(dirPath, arrayOfFiles) {
     return arrayOfFiles
   }
 
-  var listAnalysis = getAllFiles('/var/lib/jenkins/jobs/checkbox-pipeline-build/workspace/checkbox.io/server-side/site');
+  var listAnalysis = getAllFiles('/var/lib/jenkins/workspace/checkbox-pipeline-build/checkbox.io/server-side/site');
 
   console.log("Running Static analysis for all .js files in server-side/site/");
   listAnalysis.forEach(function(file){
