@@ -5,8 +5,24 @@
     - vars/vars.yml
   
   tasks:
-    - name: Git clone ITrust Directory to /home/vargrant
+    - name: Delete Fuzzing directory if it exists in /home/vagrant
+      file:
+        state: absent
+        path: /home/vagrant/Fuzzing
+      become: yes
+
+    - name: Delete iTrust directory if it exists in /home/vagrant
+      file:
+        state: absent
+        path: /home/vagrant/iTrust
+      become: yes
+
+    - name: Git clone ITrust Directory to /home/vagrant
       shell: git clone https://{{ git_uname }}:{{ git_passwd }}@github.ncsu.edu/engr-csc326-staff/iTrust2-v8.git /home/vagrant/iTrust
+    
+    - name: Setting permissions for iTrust
+      shell: chmod -R 777 /home/vagrant/iTrust/iTrust2/
+      become: yes
     
     - name: Modifying the pom.xml file.
       copy:
@@ -26,10 +42,19 @@
     - name: Copy Fuzzing directory to /home/vagrant/
       shell: '(cd /bakerx/ && cp -r Fuzzing /home/vagrant/)'
 
+    - name: Setting permissions for Fuzzing directory
+      shell: chmod -R 777 /home/vagrant/Fuzzing/
+      become: yes
+
     - name: Run Fuzzing 
       shell: '(cd /home/vagrant/Fuzzing/ && npm install && node index.js {{check}})'
-      register: log    
-      
-    - name: Show log
+      become: yes
+    
+    - name: Show Results of Testing after Fuzzing
+      shell: "cat /home/vagrant/result.txt"
+      register: log
+      become: yes    
+
+    - name: Show Fuzzing results
       debug:
         msg: "{{ log.stdout_lines }}"

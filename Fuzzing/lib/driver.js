@@ -1,8 +1,19 @@
 const fs = require('fs');
+const xml2js = require('xml2js');
+const Bluebird = require('bluebird');
 const path = require('path');
 const Random = require('random-js');
 const chalk = require('chalk');
 const mutateStr = require('./mutate').mutateString;
+const child = require('child_process');
+
+var NUMBER_OF_TESTS = 32;
+
+var map = {};
+
+var parser = new xml2js.Parser();
+
+var validFileExtensions = ["xml"];
 
 class mutater {
     static random() {
@@ -21,83 +32,170 @@ class mutater {
 
 };
 
-function mtfuzz(iterations, seeds, testFn)
+
+function getResults(json){
+    var testResults = []
+    
+    for(var i=0; i<json.testsuite['$'].tests; i++)
+    {
+        var testCase = json.testsuite.testcase[i];
+        testResults.push({
+            name: testCase['$'].classname + testCase['$'].name,
+            time: testCase['$'].time,
+            status: testCase.hasOwnProperty("failure") || testCase.hasOwnProperty("error") ? "failed" : "passed"
+        });
+    }
+    return testResults;
+}
+
+const read = (dir) =>
+    fs.readdirSync(dir)
+    .reduce(function(files, file) {
+        if (fs.statSync(path.join(dir, file)).isDirectory()) {
+            var readFilesList = read(path.join(dir, file));
+            if (readFilesList != undefined) {
+                return files.concat(readFilesList);
+            } else {
+                return files;
+            }
+        } else {
+            if (validFileExtensions.indexOf(file.substring(file.lastIndexOf(".") + 1)) > -1) {
+                return files.concat(path.join(dir, file));
+            } else {
+                return files;
+            }
+        }
+    }, []);
+
+async function mtfuzz(iterations, seeds, testFn)
 {    
     var failedTests = [];
     var passedTests = 0;
 
+    var totalFailures = 0;
+
     mutater.seed(0);
 
-    console.log(chalk.green(`Fuzzing '${testFn}' with ${iterations} randomly generated-inputs.`))
+    child.execSync("cd /home/vagrant/iTrust/iTrust2 && sudo mvn process-test-classes && mysql -u root -proot -e 'DROP DATABASE IF EXISTS iTrust2_test'");
+
+    //console.log(chalk.green(`Fuzzing '${testFn}' with ${iterations} randomly generated-inputs.`))
     
-    for (var i = 1; i <= iterations; i++) {
-
-        // Toggle between seed files
-        let idx = ((i % seeds.length) + seeds.length) % seeds.length;
-
-        // apply random mutation to seed input
-        let s = seeds[ idx ];
-        let mutuatedString = mutater.str(s);
+    for (var i = 1; i <= iterations; i++)
+    {
+        var maxRetries = 50;
         
-        if( !fs.existsSync('.mutations') )
+        while(maxRetries > 0)
         {
-            fs.mkdirSync('.mutations');
-        }
-        fs.writeFileSync(path.join( '.mutations', `${i}.txt`), mutuatedString);
+            var flag = 0;
+            // Toggle between seed files
+            try{
+            let s = seeds;
+            let mutuatedString = mutater.str(s);
+            
+            if( !fs.existsSync('.mutations') )
+            {
+                fs.mkdirSync('.mutations');
+            }
+            console.log('Writing into mutation file (iteration' + i + '): \n');
 
-        // run given function under test with input
-        try
-        {
-            testFn(mutuatedString);
-            passedTests++;
+            fs.writeFileSync(path.join( '.mutations', `${i}.java`), mutuatedString);
+
+            child.execSync("cd /home/vagrant/iTrust/iTrust2/ && sudo mvn clean test");
+
+            } catch(e){
+                console.log(e);
+                var error1 = Buffer.from(e.stdout).toString("ascii");
+                if (error1.includes("Compilation") == true) {
+                    console.log("Failed due to Compilation error");
+                    maxRetries -=1;
+                    flag = 1;
+                }
+            }
+
+            child.execSync(`cd /home/vagrant/iTrust/ && git reset --hard HEAD`);
+            child.execSync(`cd /home/vagrant/iTrust/iTrust2 && sudo cp /bakerx/cm/Ansible_Scripts/JinjaTemplates/pom.xml .`);
+
+            if(flag == 0){
+                break;
+            }
         }
-        catch(e)
+
+        var files = read("/home/vagrant/iTrust/iTrust2/target/surefire-reports");
+
+        for(const index in files)
         {
-            failedTests.push( {input:mutuatedString, stack: e.stack, id: i} );
+            var contents = fs.readFileSync(files[index]);
+
+            let xml2json = await Bluebird.fromCallback(cb => parser.parseString(contents, cb));
+
+            var tests = getResults(xml2json);
+
+            for(var test of tests)
+            {
+                //console.log("Test:", test);
+                if(!map.hasOwnProperty(test.name)){
+                    map[test.name] = {pass: 0, fail: 0};
+                }
+
+                if(test.status == "passed") {
+                    map[test.name].pass++;
+                }
+
+                if(test.status == "failed") {
+                    map[test.name].fail++;
+                    totalFailures++;
+                }
+            }
         }
+        //console.log("Map:\n", map);
     }
 
-    reduced = {};
-    // RESULTS OF FUZZING
-    for( var i =0; i < failedTests.length; i++ )
-    {
-        var failed = failedTests[i];
-
-        var trace = failed.stack.split("\n");
-        var msg = trace[0];
-        var at = trace[1];
-        console.log( msg );
-        // console.log( failed.stack );
-
-        if( !reduced.hasOwnProperty( at ) )
-        {
-
-            reduced[at] = `${chalk.red(msg)}\nFailed with input: .mutations/${failed.id}.txt\n${chalk.grey(failed.stack)}`; 
-        }
-    }
-
-    console.log("\n" + chalk.underline(`Finished ${iterations} runs.`));
-    console.log(`passed: ${chalk.green(passedTests)}, exceptions: ${chalk.red(failedTests.length)}, faults: ${chalk.blue(Object.keys(reduced).length)}`);
+    var mutationCoverage = (totalFailures/(NUMBER_OF_TESTS * iterations)) * 100;
     
-    console.log("\n" + chalk.underline("Discovered faults."));
-    console.log();
-    for( var key in reduced )
+    var mutationReport = "\nOverall Mutation Coverage = " + mutationCoverage.toString() + " %" + " mutations caught by the test suite.\n";
+    //console.log("Mutation Report", mutationReport);
+
+    results = [];
+
+    for(key in map)
     {
-        console.log( reduced[key] );
+        //console.log("Key: ", key);
+        results.push({
+            name: key, 
+            pass: map[key].pass,
+            fail: map[key].fail,
+            total: map[key].pass + map[key].fail
+        });
     }
 
+    results.sort((a, b) => {
+        if(a.fail > b.fail)
+            return -1;
+        else if(a.pass < b.pass && a.fail == b.fail)
+            return -1;
+    });
+
+    var str = '';
+
+    for(i in results){
+        str += `${results[i].fail}/${iterations} - ${results[i].name}\n`;
+    }
+
+    //console.log("Str: ", str);
+
+    let data = JSON.stringify(map);
+
+    fs.writeFileSync('map.json', data);
+
+    fs.writeFile('/home/vagrant/result.txt', str, (err) =>{
+        if(err) throw err;
+    });
+
+    fs.appendFile('/home/vagrant/result.txt', mutationReport, (err) => {
+        if(err) throw err;
+    });
+
+    return;
 }
 
 exports.mtfuzz = mtfuzz;
-
-if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
-    });
-  };
-}
