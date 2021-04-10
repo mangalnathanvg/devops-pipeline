@@ -22,7 +22,7 @@
         stage('Static Analysis')
         {
           sh 'npm install /home/vagrant/Static_Analysis'
-          sh 'node /home/vagrant/Static_Analysis/runAnalysis.js'
+          sh 'node /home/vagrant/Static_Analysis/runAnalysis.js ./checkbox.io/server-side/site/'
           sh 'cat analysis_log.txt'
           sh 'node /home/vagrant/Static_Analysis/buildStatus.js'
         }
