@@ -9,7 +9,7 @@ const child = require('child_process');
 
 var NUMBER_OF_TESTS = 32;
 
-var map = {};
+var countResult = {};
 
 var parser = new xml2js.Parser();
 
@@ -133,16 +133,16 @@ async function mtfuzz(iterations, seeds, testFn)
             for(var test of tests)
             {
                 //console.log("Test:", test);
-                if(!map.hasOwnProperty(test.name)){
-                    map[test.name] = {pass: 0, fail: 0};
+                if(!countResult.hasOwnProperty(test.name)){
+                    countResult[test.name] = {pass: 0, fail: 0};
                 }
 
                 if(test.status == "passed") {
-                    map[test.name].pass++;
+                    countResult[test.name].pass++;
                 }
 
                 if(test.status == "failed") {
-                    map[test.name].fail++;
+                    countResult[test.name].fail++;
                     totalFailures++;
                 }
             }
@@ -157,37 +157,43 @@ async function mtfuzz(iterations, seeds, testFn)
 
     results = [];
 
-    for(key in map)
+    for(key in countResult)
     {
         //console.log("Key: ", key);
         results.push({
             name: key, 
-            pass: map[key].pass,
-            fail: map[key].fail,
-            total: map[key].pass + map[key].fail
+            pass: countResult[key].pass,
+            fail: countResult[key].fail,
+            total: countResult[key].pass + countResult[key].fail
         });
     }
 
-    results.sort((a, b) => {
-        if(a.fail > b.fail)
-            return -1;
-        else if(a.pass < b.pass && a.fail == b.fail)
-            return -1;
+    results.sort((x, y) => {
+        if(x.fail > y.fail)
+        {
+            return -100;
+        }
+        else if(x.pass < y.pass && x.fail == y.fail){
+            return -100;
+        }
+        else{
+            return 100;
+        }
     });
 
-    var str = '';
-
+    var logStr = '';
+    logStr = "\nUseful Tests (Fail/Pass)\n============\n";
     for(i in results){
-        str += `${results[i].fail}/${iterations} - ${results[i].name}\n`;
+        logStr += `${results[i].fail}/${results[i].pass} - ${results[i].name}\n`;
     }
 
     //console.log("Str: ", str);
 
-    let data = JSON.stringify(map);
+    let data = JSON.stringify(countResult);
 
     fs.writeFileSync('map.json', data);
 
-    fs.writeFile('/home/vagrant/result.txt', str, (err) =>{
+    fs.writeFile('/home/vagrant/result.txt', logStr, (err) =>{
         if(err) throw err;
     });
 
@@ -199,3 +205,5 @@ async function mtfuzz(iterations, seeds, testFn)
 }
 
 exports.mtfuzz = mtfuzz;
+
+
