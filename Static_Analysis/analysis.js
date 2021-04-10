@@ -196,6 +196,7 @@ class FunctionBuilder
 		});
 
 		var violationLog = "";
+		var violationFlag = 0;
 		if(this.Length > 100)
 		{
 			violationLog = "\nVIOLATION: The function " + this.FunctionName + "()" + " exceeds 100 LOC. Currently has " + this.Length + " LOC\n";
@@ -205,6 +206,7 @@ class FunctionBuilder
 			//   });
 			//console.log("\nThe function " + this.FunctionName + " exceeds 100 LOC. Currently has " + this.Length + " LOC");
 			this.blockBuild = true;
+			violationFlag = 1;
 		}
 
 		if(this.MaxMessageChains > 10)
@@ -215,6 +217,7 @@ class FunctionBuilder
 			//   });
 			//console.log("\nThe function " + this.FunctionName + " contains message chain exceeding max limit(10). Length found: " + this.MaxMessageChains);
 			this.blockBuild = true;
+			violationFlag = 1;
 		}
 
 		if(this.MaxNestingDepth > 5)
@@ -222,8 +225,14 @@ class FunctionBuilder
 			violationLog = "\nVIOLATION: The function " + this.FunctionName + "()" + " exceeds Max Nesting depth (5). Nesting Depth reached: " + this.MaxNestingDepth + '\n';
 			//console.log("\nThe function " + this.FunctionName + " exceeds Max Nesting depth (5). Nesting Depth reached: " + this.MaxNestingDepth);
 			this.blockBuild = true;
+			violationFlag = 1;
 		}
 
+		if(violationFlag == 0){
+			fs.appendFile('analysis_log.txt', "\nNo Static Analysis violations found in this file!\n", function (err) {
+				if (err) throw err;
+		});
+		}
 		if(violationLog!=""){
 			fs.appendFile('analysis_log.txt', violationLog, function (err) {
 				if (err) throw err;
