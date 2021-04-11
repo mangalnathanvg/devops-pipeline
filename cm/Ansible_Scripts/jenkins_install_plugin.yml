@@ -154,6 +154,7 @@
       - sshd
       - pipeline-stage-view
       - jacoco
+      - warnings-ng
 
   - name: Restarting the Jenkins service
     service:
