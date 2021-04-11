@@ -11,7 +11,7 @@
 
 Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects): 
 
-## Test Milestone
+## Test Milestone (M2)
 
 * Automatically configure a build environment and build job for a Java application (iTrust)
 * Implement a test suite analysis for detecting useful tests.
@@ -92,9 +92,21 @@ pipeline build checkbox.io -u <admin> -p <admin>
 ####  Static Analysis and code smells
 
 
-
 ### Screencast
 
+[Pipeline setup](https://drive.google.com/file/d/1lx2qZs_iGLHNN4iOTv6KDUADlOxEQwi0/view?usp=sharing)
+
+[Itrust Build](https://drive.google.com/file/d/1DyYgymSotl919FoijPuyRcICWXd-Z_8H/view?usp=sharing)
+
+[Fuzzing]
+
+[Static Analysis]
+
+#### Checkstyle Images
+
+![image](https://media.github.ncsu.edu/user/16849/files/2aec8f80-9ab0-11eb-940a-34a5ed4341d6)
+
+![image](https://media.github.ncsu.edu/user/16849/files/730bb200-9ab0-11eb-9b2b-cf74664f4883)
 
 ### Distribution of tasks
 * Automatically configure a build environment and build job for a Java application (iTrust) - Sharath Bangalore Ramesh Kumar
@@ -102,7 +114,7 @@ pipeline build checkbox.io -u <admin> -p <admin>
 * Implement a static analysis for detecting code smells - Mangalnathan Vijayagopal
 * Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
 
-## Build Milestone
+## Build Milestone (M1)
 
 ### General Tasks
 
@@ -218,19 +230,7 @@ pipeline build checkbox.io -u admin -p admin
 
 ### Screencast
 
-[Pipeline setup](https://drive.google.com/file/d/1lx2qZs_iGLHNN4iOTv6KDUADlOxEQwi0/view?usp=sharing)
-
-[Itrust Build](https://drive.google.com/file/d/1DyYgymSotl919FoijPuyRcICWXd-Z_8H/view?usp=sharing)
-
-[Fuzzing]
-
-[Static Analysis]
-
-#### Checkstyle Images
-
-![image](https://media.github.ncsu.edu/user/16849/files/2aec8f80-9ab0-11eb-940a-34a5ed4341d6)
-
-![image](https://media.github.ncsu.edu/user/16849/files/730bb200-9ab0-11eb-9b2b-cf74664f4883)
+Click [here](https://drive.google.com/file/d/1sROAvnjN9UaSy27gTr2zWh3PeqXhAbX6/view?usp=sharing) to watch screencast of the project.
 
 ### Checkpoint Report
 
