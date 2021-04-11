@@ -28,7 +28,7 @@ Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-
   - Automatically configure a build environment for a node web applications (checkbox.io)
   - Create a build Job
 
-Note: As an enhancement to Milestone 2 the pipeline setup command has been updated as below.
+Note: As an enhancement to Milestone 2 the pipeline setup command has been updated as below. GIT_USER and GIT_PASS should be configured in the local system environment.
 ```
 pipeline setup --gh-user $GIT_USER --gh-pass $GIT_PASS
 ```
@@ -67,11 +67,14 @@ pipeline build checkbox.io -u <admin> -p <admin>
         mvn clean test integration-test checkstyle:checkstyle
         ```
     - For code coverage, we used jacoco jenkins plugins.
+    - For checkstyle we used warnings-ng plugin in jenkins.
         
   * Challenges Faced: 
     - To accomplish accessing github credentials username and password are stored in the local system environment, and these are passed to the code via pipeline setup command as arguments.
     - Changing the password of the MySQL proved to be little challenging. For changing the password we made use of debconf a configuration system for debian packages. It allows to preconfigure packages before they are installed, which allows to ask for all necessary information upfront. This helped in updating the password.
     - With jacoco plugin the implementation was confusing since we have to give parameters like - execPattern, classPattern, sourcePattern etc. But referring to following stack overflow link helped us in implementing jacoco as part of the jenkins build job for iTrust.
+    - For style check we had to copy checkstyle-result.xml from the iTrust target repo to jenkins working directory for recording the issues using the tool checkstyle.
+    - For Jacoco to mention the threshold of branch coverage, instruction coverage, class coverage and method coverage, parameters had to be passed while running the build job. This [link](https://www.jenkins.io/doc/pipeline/steps/jacoco/) was helpful in doing the task.
     
 #### Fuzzing Test
 
@@ -93,6 +96,11 @@ pipeline build checkbox.io -u <admin> -p <admin>
 ### Screencast
 
 
+### Distribution of tasks
+* Automatically configure a build environment and build job for a Java application (iTrust) - Sharath Bangalore Ramesh Kumar
+* Implement a test suite analysis for detecting useful tests - Niranjan Pandeshwar
+* Implement a static analysis for detecting code smells - Mangalnathan Vijayagopal
+* Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
 
 ## Build Milestone
 
