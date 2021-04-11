@@ -129,7 +129,7 @@ pipeline build checkbox.io -u <admin> -p <admin>
 
 [Fuzzing](https://drive.google.com/file/d/1CmENs0FFwU0NERT6kKJbEVHpSjCIT-Ta/view?usp=sharing)
 
-[Static Analysis](https://screencast-o-matic.com/content/video/crfXoDVnZjU)
+[Static Analysis](https://screencast-o-matic.com/watch/crfXoDVnZjU)
 
 <br />
 
