@@ -13,13 +13,11 @@ Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-
 
 Milestones:
 
-[Test Milestone](#test-milestone-(m2))
+[Test Milestone](#test-milestone-m2)
 
-[Build Milestone](#build-milestone-(M1))
+[Build Milestone](#build-milestone-m1)
 
-<br />
-
-## Test Milestone (M2)
+# Test Milestone (M2)
 
 * Automatically configure a build environment and build job for a Java application (iTrust)
 * Implement a test suite analysis for detecting useful tests.
@@ -152,7 +150,7 @@ pipeline build checkbox.io -u <admin> -p <admin>
 
 <br />
 
-## Build Milestone (M1)
+# Build Milestone (M1)
 
 <br />
 
