@@ -1,0 +1,37 @@
+
+Useful Tests (Fail/Pass)
+============
+17/283 - edu.ncsu.csc.iTrust2.api.APIOfficeVisitTesttestOfficeVisitAPI
+12/288 - edu.ncsu.csc.iTrust2.api.APIOfficeVisitTesttestPreScheduledOfficeVisit
+10/290 - edu.ncsu.csc.iTrust2.api.APIDiagnosisTesttestDiagnoses
+6/294 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestAppointmentRequestAPI
+6/294 - edu.ncsu.csc.iTrust2.api.APIDrugTesttestDrugAPI
+6/294 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestRoleFiltering
+6/294 - edu.ncsu.csc.iTrust2.unit.OfficeVisitTesttestOfficeVisit
+6/294 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestCreateBadAppointmentRequest
+5/295 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestPatientAPI
+5/295 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestPatientUnauthenticated
+5/295 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestPatientAsPatient
+5/295 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestPersonnelAPI
+5/295 - edu.ncsu.csc.iTrust2.unit.UserTesttestUserRoles
+4/296 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestGetNonExistentAppointment
+4/296 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestDeleteNonExistentAppointment
+4/296 - edu.ncsu.csc.iTrust2.api.APIHospitalTesttestHospitalAPI
+4/296 - edu.ncsu.csc.iTrust2.api.APIUserTesttestCreateUsers
+4/296 - edu.ncsu.csc.iTrust2.api.APIOfficeVisitTesttestGetNonExistentOfficeVisit
+4/296 - edu.ncsu.csc.iTrust2.unit.PatientTesttestCreatePatientRecord
+4/296 - edu.ncsu.csc.iTrust2.unit.PersonnelTesttestPersonnel
+3/297 - edu.ncsu.csc.iTrust2.api.APIUserTesttestUpdateUsers
+3/297 - edu.ncsu.csc.iTrust2.api.APIHospitalTesttestPermissions
+3/297 - edu.ncsu.csc.iTrust2.unit.UserTesttestIllegalRoleCombinations
+3/297 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestGetNonExistentPatient
+2/298 - edu.ncsu.csc.iTrust2.api.APIUserTesttestCreateInvalidUsers
+2/298 - edu.ncsu.csc.iTrust2.api.APIICDCodeTesttestCodeAPI
+2/298 - edu.ncsu.csc.iTrust2.api.APIHospitalTesttestGetNonExistentHospital
+2/298 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestGetNonExistentPersonnel
+2/298 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestGetByRole
+2/298 - edu.ncsu.csc.iTrust2.unit.LogEntryTesttestCreateLogEntries
+1/299 - edu.ncsu.csc.iTrust2.unit.ICDCodeTesttestCodes
+1/299 - edu.ncsu.csc.iTrust2.unit.ICDCodeTesttestInvalidCodes
+
+Overall Mutation Coverage = 1.5416666666666667 % mutations caught by the test suite.

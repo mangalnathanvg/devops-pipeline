@@ -1,0 +1,37 @@
+
+Useful Tests (Fail/Pass)
+============
+4/96 - edu.ncsu.csc.iTrust2.api.APIOfficeVisitTesttestOfficeVisitAPI
+2/98 - edu.ncsu.csc.iTrust2.api.APIDiagnosisTesttestDiagnoses
+2/98 - edu.ncsu.csc.iTrust2.api.APIOfficeVisitTesttestPreScheduledOfficeVisit
+1/99 - edu.ncsu.csc.iTrust2.api.APIOfficeVisitTesttestGetNonExistentOfficeVisit
+1/99 - edu.ncsu.csc.iTrust2.api.APIHospitalTesttestPermissions
+1/99 - edu.ncsu.csc.iTrust2.api.APIHospitalTesttestHospitalAPI
+1/99 - edu.ncsu.csc.iTrust2.api.APIDrugTesttestDrugAPI
+1/99 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestPatientAsPatient
+1/99 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestPatientAPI
+0/100 - edu.ncsu.csc.iTrust2.unit.UserTesttestUserRoles
+0/100 - edu.ncsu.csc.iTrust2.api.APIUserTesttestUpdateUsers
+0/100 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestCreateBadAppointmentRequest
+0/100 - edu.ncsu.csc.iTrust2.api.APIUserTesttestCreateUsers
+0/100 - edu.ncsu.csc.iTrust2.api.APIICDCodeTesttestCodeAPI
+0/100 - edu.ncsu.csc.iTrust2.api.APIUserTesttestCreateInvalidUsers
+0/100 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestGetNonExistentAppointment
+0/100 - edu.ncsu.csc.iTrust2.unit.ICDCodeTesttestCodes
+0/100 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestGetNonExistentPatient
+0/100 - edu.ncsu.csc.iTrust2.unit.ICDCodeTesttestInvalidCodes
+0/100 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestAppointmentRequestAPI
+0/100 - edu.ncsu.csc.iTrust2.unit.LogEntryTesttestCreateLogEntries
+0/100 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestGetByRole
+0/100 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestRoleFiltering
+0/100 - edu.ncsu.csc.iTrust2.unit.UserTesttestIllegalRoleCombinations
+0/100 - edu.ncsu.csc.iTrust2.unit.PersonnelTesttestPersonnel
+0/100 - edu.ncsu.csc.iTrust2.unit.PatientTesttestCreatePatientRecord
+0/100 - edu.ncsu.csc.iTrust2.unit.OfficeVisitTesttestOfficeVisit
+0/100 - edu.ncsu.csc.iTrust2.api.APIHospitalTesttestGetNonExistentHospital
+0/100 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestPersonnelAPI
+0/100 - edu.ncsu.csc.iTrust2.api.APIPersonnelTesttestGetNonExistentPersonnel
+0/100 - edu.ncsu.csc.iTrust2.api.APIAppointmentRequestTesttestDeleteNonExistentAppointment
+0/100 - edu.ncsu.csc.iTrust2.api.APIPatientTesttestPatientUnauthenticated
+
+Overall Mutation Coverage = 0.43750000000000006 % mutations caught by the test suite.
