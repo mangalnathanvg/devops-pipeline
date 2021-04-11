@@ -17,6 +17,10 @@ Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-
 * Implement a test suite analysis for detecting useful tests.
 * Implement a static analysis for detecting code smells.
 
+### Design Architecture
+
+![image](https://media.github.ncsu.edu/user/16849/files/df85b180-9aae-11eb-9b7f-e432e68d5d52)
+
 ### Instructions to Setup and Run
 
 1. Please follow Build Milestone steps to:
@@ -36,8 +40,14 @@ pipeline build iTrust -u <admin> -p <admin>
 ```
 
 3. Implement a test suite analysis for detecting useful tests.
+```
+pipeline useful-tests -c 1000 --gh-user $GIT_USER --gh-pass $GIT_PASS
+```
 
 4. Implement a static analysis for detecting code smells.
+```
+pipeline build checkbox.io -u <admin> -p <admin>
+```
 
 
 ### Challenges Faced and Major Learning Outcomes
@@ -200,7 +210,19 @@ pipeline build checkbox.io -u admin -p admin
 
 ### Screencast
 
-Click [here](https://drive.google.com/file/d/1sROAvnjN9UaSy27gTr2zWh3PeqXhAbX6/view?usp=sharing) to watch screencast of the project.
+[Pipeline setup](https://drive.google.com/file/d/1lx2qZs_iGLHNN4iOTv6KDUADlOxEQwi0/view?usp=sharing)
+
+[Itrust Build](https://drive.google.com/file/d/1DyYgymSotl919FoijPuyRcICWXd-Z_8H/view?usp=sharing)
+
+[Fuzzing]
+
+[Static Analysis]
+
+#### Checkstyle Images
+
+![image](https://media.github.ncsu.edu/user/16849/files/2aec8f80-9ab0-11eb-940a-34a5ed4341d6)
+
+![image](https://media.github.ncsu.edu/user/16849/files/730bb200-9ab0-11eb-9b2b-cf74664f4883)
 
 ### Checkpoint Report
 
