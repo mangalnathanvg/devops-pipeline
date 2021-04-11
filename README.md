@@ -211,11 +211,14 @@ pipeline build checkbox.io -u admin -p admin
 ### Screencast
 
 [Pipeline setup](https://drive.google.com/file/d/1lx2qZs_iGLHNN4iOTv6KDUADlOxEQwi0/view?usp=sharing)
+
 [Itrust Build](https://drive.google.com/file/d/1DyYgymSotl919FoijPuyRcICWXd-Z_8H/view?usp=sharing)
+
 [Fuzzing]
+
 [Static Analysis]
 
-####Checkstyle Images
+#### Checkstyle Images
 
 ![image](https://media.github.ncsu.edu/user/16849/files/2aec8f80-9ab0-11eb-940a-34a5ed4341d6)
 
