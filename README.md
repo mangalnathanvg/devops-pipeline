@@ -63,12 +63,24 @@ pipeline build iTrust -u <admin> -p <admin>
     - Changing the password of the MySQL proved to be little challenging. For changing the password we made use of debconf a configuration system for debian packages. It allows to preconfigure packages before they are installed, which allows to ask for all necessary information upfront. This helped in updating the password.
     - With jacoco plugin the implementation was confusing since we have to give parameters like - execPattern, classPattern, sourcePattern etc. But referring to following stack overflow link helped us in implementing jacoco as part of the jenkins build job for iTrust.
     
+#### Fuzzing Test
+
+  * Major Learning Outcomes
+    - In fuzzing workshop, we randomly changed strings in test files. But in the milestone, we introduced changes in the source code itself.
+    - We learnt how mutations in source code can be used to perform a fuzz test.
+    - Fuzz tests can give very poor results if we introduce too many mutations in an iteration. Therefore it is important to make sure we change few files and few lines of files at a time.
+    - We were given 4 mutations in the requirement. We added 2 more types in our code. We swapped "true" with "false" and "||" with "&&".
+    
+    
+   * Challenges Faced: 
+     - Running 1000 iterations would take very long time and system resources.
+     - Network connectivity interruptions caused a lot of delay in performing tasks.
+     
 ####  Static Analysis and code smells
 
 
-#### Fuzzing Test
-    
-    
+
+### Screencast
 
 
 
