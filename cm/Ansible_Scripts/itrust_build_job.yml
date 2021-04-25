@@ -23,6 +23,10 @@
         stage('Test'){
           sh '(cd ./iTrust2-v8/iTrust2 && mvn clean test integration-test checkstyle:checkstyle)'
         }
+        stage('CheckStyle'){
+          sh 'cp ./iTrust2-v8/iTrust2/target/checkstyle-result.xml ./'
+          recordIssues(tools: [checkStyle(reportEncoding: 'UTF-8')])
+        }
         stage('Remove Database'){
           sh 'mysql -u root -p$DB_PASS < /bakerx/cm/Ansible_Scripts/JinjaTemplates/database.sql'
         }
@@ -33,8 +37,13 @@
             sourcePattern: '**/src',
             inclusionPattern: '**/*.class',
             changeBuildStatus: true,
+            minimumBranchCoverage: '30',
+            minimumInstructionCoverage: '60',
+            minimumClassCoverage: '80',
+            minimumMethodCoverage: '60'
           )
         }
       }
 
 # For jacoco reference: https://stackoverflow.com/questions/41893846/jacoco-coverage-in-jenkins-pipeline
+# For checkstyle: https://thecodeexamples.com/jenkins/how-to-configure-a-checkstyle-in-jenkins/

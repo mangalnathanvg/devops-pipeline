@@ -11,11 +11,25 @@
 
 Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects): 
 
-## Test Milestone
+Milestones:
+
+[Test Milestone](#test-milestone-m2)
+
+[Build Milestone](#build-milestone-m1)
+
+# Test Milestone (M2)
 
 * Automatically configure a build environment and build job for a Java application (iTrust)
 * Implement a test suite analysis for detecting useful tests.
 * Implement a static analysis for detecting code smells.
+
+<br />
+
+### Design Architecture
+
+![image](https://media.github.ncsu.edu/user/16849/files/df85b180-9aae-11eb-9b7f-e432e68d5d52)
+
+<br />
 
 ### Instructions to Setup and Run
 
@@ -24,7 +38,7 @@ Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-
   - Automatically configure a build environment for a node web applications (checkbox.io)
   - Create a build Job
 
-Note: As an enhancement to Milestone 2 the pipeline setup command has been updated as below.
+Note: As an enhancement to Milestone 2 the pipeline setup command has been updated as below. GIT_USER and GIT_PASS should be configured in the local system environment.
 ```
 pipeline setup --gh-user $GIT_USER --gh-pass $GIT_PASS
 ```
@@ -36,11 +50,20 @@ pipeline build iTrust -u <admin> -p <admin>
 ```
 
 3. Implement a test suite analysis for detecting useful tests.
+```
+pipeline useful-tests -c 1000 --gh-user $GIT_USER --gh-pass $GIT_PASS
+```
 
 4. Implement a static analysis for detecting code smells.
+```
+pipeline build checkbox.io -u <admin> -p <admin>
+```
 
+<br />
 
 ### Challenges Faced and Major Learning Outcomes
+
+<br />
 
 ####  Configuring the Build environment and build job for a java application.
 
@@ -57,28 +80,87 @@ pipeline build iTrust -u <admin> -p <admin>
         mvn clean test integration-test checkstyle:checkstyle
         ```
     - For code coverage, we used jacoco jenkins plugins.
-        
+    - For checkstyle we used warnings-ng plugin in jenkins.
+    
   * Challenges Faced: 
     - To accomplish accessing github credentials username and password are stored in the local system environment, and these are passed to the code via pipeline setup command as arguments.
     - Changing the password of the MySQL proved to be little challenging. For changing the password we made use of debconf a configuration system for debian packages. It allows to preconfigure packages before they are installed, which allows to ask for all necessary information upfront. This helped in updating the password.
     - With jacoco plugin the implementation was confusing since we have to give parameters like - execPattern, classPattern, sourcePattern etc. But referring to following stack overflow link helped us in implementing jacoco as part of the jenkins build job for iTrust.
+    - For style check we had to copy checkstyle-result.xml from the iTrust target repo to jenkins working directory for recording the issues using the tool checkstyle.
+    - For Jacoco to mention the threshold of branch coverage, instruction coverage, class coverage and method coverage, parameters had to be passed while running the build job. This [link](https://www.jenkins.io/doc/pipeline/steps/jacoco/) was helpful in doing the task.
     
-####  Static Analysis and code smells
 
+<br />
 
 #### Fuzzing Test
+
+  * Major Learning Outcomes
+    - In fuzzing workshop, we randomly changed strings in test files. But in the milestone, we introduced changes in the source code itself.
+    - We learnt how mutations in source code can be used to perform a fuzz test.
+    - Fuzz tests can give very poor results if we introduce too many mutations in an iteration. Therefore it is important to make sure we change few files and few lines of files at a time.
+    - We were given 4 mutations in the requirement. We added 2 more types in our code. We swapped "true" with "false" and "||" with "&&".
     
-    
+   * Challenges Faced: 
+     - Running 1000 iterations would take very long time and system resources.
+     - Network connectivity interruptions caused a lot of delay in performing tasks.
+     
+
+<br />
+
+####  Static Analysis and code smells
+
+* Major Learning Outcomes
+  * Parsing Abstract Syntax Trees and analyzing the information we need to decide if any violations occurred or not.
+  * Investigating Abstract Syntax Trees (AST) by using `esprima` 
+  * Using Visitor and Builder pattern to traverse AST to detect violations.
+* Challenges Faced:
+  * Implementing logic for MaxNestingDepth was challenging and required lot of dry runs to handle most of the scenarios.
+  * Reporting all violations before deciding whether to fail the build or not.
+  * Figure out a way to pass directory paths without hardcoding values as much as possible.]
+
+<br />
 
 
+### Screencast
 
-## Build Milestone
+[Pipeline setup](https://drive.google.com/file/d/1lx2qZs_iGLHNN4iOTv6KDUADlOxEQwi0/view?usp=sharing)
+
+[Itrust Build](https://drive.google.com/file/d/1DyYgymSotl919FoijPuyRcICWXd-Z_8H/view?usp=sharing)
+
+[Fuzzing](https://drive.google.com/file/d/1CmENs0FFwU0NERT6kKJbEVHpSjCIT-Ta/view?usp=sharing)
+
+[Static Analysis](https://screencast-o-matic.com/watch/crfXoDVnZjU)
+
+<br />
+
+#### Checkstyle Images
+
+![image](https://media.github.ncsu.edu/user/16849/files/2aec8f80-9ab0-11eb-940a-34a5ed4341d6)
+
+![image](https://media.github.ncsu.edu/user/16849/files/730bb200-9ab0-11eb-9b2b-cf74664f4883)
+
+<br />
+
+### Distribution of tasks
+
+* Automatically configure a build environment and build job for a Java application (iTrust) - Sharath Bangalore Ramesh Kumar
+* Implement a test suite analysis for detecting useful tests - Niranjan Pandeshwar
+* Implement a static analysis for detecting code smells - Mangalnathan Vijayagopal
+* Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
+
+<br />
+
+# Build Milestone (M1)
+
+<br />
 
 ### General Tasks
 
 * Automatically configure a build server with jenkins and ansible.
 * Automatically configure a build environment for a node web application (checkbox.io).
 * Create a build job.
+
+<br />
 
 ### Design Architecture
 
