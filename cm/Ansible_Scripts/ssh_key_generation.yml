@@ -1,0 +1,28 @@
+---
+- name: Create ssh-key and store the public key of the config-srv
+  hosts: localhost
+
+  vars_files:
+    - ../vars/vars.yml
+  
+  tasks:
+  - name: Deleting .ssh files if it exists.
+    file:
+      state: absent
+      path: "{{item}}"
+    loop:
+      - ~/.ssh
+      
+  - name: Generate ssh RSA host key.
+    command : ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+    register: log
+
+  - name: Show log.
+    debug:
+      msg: "{{ log.stdout_lines }}"
+
+  - name: Copying the generated public key to /bakerx/public_key
+    template:
+      src: ~/.ssh/id_rsa.pub
+      dest: /bakerx/cm/public_key_config_srv.pub
+    become: yes
