@@ -1,3 +1,6 @@
 node_modules/
 *.retry
 .vault-pass
+cm/public_key_config_srv.pub
+id_rsa
+id_rsa.pub
