@@ -43,6 +43,9 @@
             minimumMethodCoverage: '60'
           )
         }
+        stage('warfile'){
+          sh '(cd ./iTrust2-v8/iTrust2 && mvn compile war:war)'
+        }
       }
 
 # For jacoco reference: https://stackoverflow.com/questions/41893846/jacoco-coverage-in-jenkins-pipeline
