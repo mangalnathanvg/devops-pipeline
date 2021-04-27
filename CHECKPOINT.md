@@ -184,3 +184,8 @@ Following general tasks are being performed as part of Milestone 3
   * Next, send traffic to the green instance for 1 minute, collect health metrics.
   * Report a statistical comparison between health values and compute a canary score
 
+## Project Board - Checkpoint 3
+
+View project board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects/1)
+
+![image](https://media.github.ncsu.edu/user/16849/files/a708e900-a6e6-11eb-935c-cd3b5b1775ef)
