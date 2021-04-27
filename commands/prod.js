@@ -58,7 +58,7 @@ async function sleep(milliseconds, string) {
 class DigitalOceanProvider
 {
    
-    async createDroplet (dropletName, region, imageName )
+    async createDroplet (dropletName, region, imageName, ssh_id )
     {
         if( dropletName == "" || region == "" || imageName == "" )
         {
@@ -72,7 +72,7 @@ class DigitalOceanProvider
             "region":region,
             "size":"s-2vcpu-4gb",
             "image":imageName,
-            "ssh_keys":null,
+            "ssh_keys":ssh_id,
             "backups":false,
             "ipv6":false,
             "user_data":null,
@@ -135,11 +135,11 @@ class DigitalOceanProvider
 };
   
 
-async function spawnVM(client, name, region, image){
+async function spawnVM(client, name, region, image, ssh_id){
     // let client = new DigitalOceanProvider();
     
     
-    var dropletId1 = await client.createDroplet(name, region, image);
+    var dropletId1 = await client.createDroplet(name, region, image, ssh_id);
     var dropletId = dropletId1.toString();
     console.log(dropletId);
     
@@ -160,7 +160,8 @@ async function run()
     let client = new DigitalOceanProvider();
     
     // Adding ssh key of config-srv to DigitalOcean Dashboard 
-    const pub_key = fs.readFileSync('./id_rsa.pub', 'utf-8').toString();
+    // Make sure that pipeline prod up should be run in the root directory of the project
+    const pub_key = fs.readFileSync('./cm/public_key_config_srv.pub', 'utf-8').toString();
     console.log("File public key: " + pub_key);
 
     var data = 
@@ -181,11 +182,11 @@ async function run()
 
     var ssh_id = res2.data.ssh_keys[0].id;
 
-    var ip1 = await spawnVM(client, "iTrust", "nyc1", "ubuntu-18-04-x64" );
+    var ip1 = await spawnVM(client, "iTrust", "nyc1", "ubuntu-18-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip1.toString()}`);
-    var ip2 = await spawnVM("checkbox.io", "nyc1", "ubuntu-18-04-x64" );
+    var ip2 = await spawnVM(client, "checkbox.io", "nyc1", "ubuntu-18-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip2.toString()}`);
-    var ip3 = await spawnVM("monitor", "nyc1", "ubuntu-18-04-x64" );
+    var ip3 = await spawnVM(client, "monitor", "nyc1", "ubuntu-18-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip3.toString()}`);
     
 }
