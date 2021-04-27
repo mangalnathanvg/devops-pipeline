@@ -2,6 +2,10 @@
 
 [Checkpoint 2](#checkpoint-report-of-team-20---milestone-2) - **March 29th 2021**
 
+[Checkpoint 3](#checkpoint-report-of-team-20---milestone-3) - **May 26th 2021**
+
+
+
 # Checkpoint Report of Team 20 - Milestone 1
 
 Following general tasks are being performed as part of checkpoint 1
@@ -133,3 +137,50 @@ Tasks for next checkpoint:
 View project board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects/1)
 
 ![image](https://media.github.ncsu.edu/user/16849/files/ea9f1180-90ac-11eb-9e3a-ebca5e815ea6)
+
+
+
+# Checkpoint Report of Team 20 - Milestone 3
+
+Following general tasks are being performed as part of Milestone 3
+
+## Provision Cloud Instances and setup Monitoring Infrastructure - Sharath (sbangal2)
+
+- For provisioning the cloud instances we are using digital ocean cloud provider. 
+- Tasks completed:
+  - Virtual Machines were successfully spawned in the cloud provider - digital ocean.
+  - prod.js file updated to configure the instances on digital ocean using 'pipeline prod up' command.
+  - Ansible script to create SSH private and public key in the config-srv.
+- Tasks to be completed:
+  - Populate the inventory file with iTrust, Checkbox.io and Monitor IP dynamically.
+  - Implement a monitor VM with a dashboard that can report metrics associated with the deployed applications. 
+  - Collection of metrics of all the instances spawned in digital ocean.
+
+
+
+## Implement deployment to cloud instances - Mangalnathan (mvijaya2)
+
+- Tasks completed:
+  - Extend jenkins build job to create a war file for deployment.
+  - Logic to copy the SSH public key of config-srv to all the cloud instances.
+- Tasks to be completed:
+  - Setup tomcat server in production environment to deploy iTrust.
+  - Install dependencies in production server.
+  - Configure nginx to serve the static website content
+
+
+
+## Implement canary analysis - Niranjan (nrpandes)
+
+* In Progress:
+  * Prepare monitoring dashboard to perform canary analysis.
+* Tasks completed:
+  * Added memory/CPU metrics.
+  * Added Latency and HTTP status codes.
+* Tasks to be completed:
+  * Construct a computing environment with three VMs.
+  * Generate load to the proxy server by requesting the `/preview` service.
+  * For the first 1 minute, send the load to the blue instance, collect health metrics.
+  * Next, send traffic to the green instance for 1 minute, collect health metrics.
+  * Report a statistical comparison between health values and compute a canary score
+
