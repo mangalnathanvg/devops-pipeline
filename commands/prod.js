@@ -2,12 +2,16 @@ const child = require('child_process');
 const chalk = require('chalk');
 const path = require('path');
 const os = require('os');
-const got    = require("got");
+const got    = require('got');
+const axios = require('axios');
+const fs = require('fs');
+
 var config = {};
 // Retrieve our api token from the environment variables.
 config.token = process.env.NCSU_DOTOKEN;
 const scpSync = require('../lib/scp');
 const sshSync = require('../lib/ssh');
+//const { request } = require('http');
 
 exports.command = 'prod up';
 exports.desc = 'Provisioning 3VM for iTrust, Checkbox, Monitoring';
@@ -28,7 +32,6 @@ const headers =
 {
 	'Content-Type':'application/json',
 	Authorization: 'Bearer ' + config.token
-
 };
 
 exports.handler = async (argv) => {
@@ -50,9 +53,11 @@ async function sleep(milliseconds, string) {
     } 
   }
 
+// Adding the ssh key to the instances.
+
 class DigitalOceanProvider
 {
-    
+   
     async createDroplet (dropletName, region, imageName )
     {
         if( dropletName == "" || region == "" || imageName == "" )
@@ -130,8 +135,9 @@ class DigitalOceanProvider
 };
   
 
-async function spawnVM(name, region, image){
-    let client = new DigitalOceanProvider();
+async function spawnVM(client, name, region, image){
+    // let client = new DigitalOceanProvider();
+    
     
     var dropletId1 = await client.createDroplet(name, region, image);
     var dropletId = dropletId1.toString();
@@ -151,7 +157,31 @@ async function run()
     // #############################################
     // #3 Create an droplet with the specified name, region, and image
     // Comment out when completed. ONLY RUN ONCE!!!!!
-    var ip1 = await spawnVM("iTrust", "nyc1", "ubuntu-18-04-x64" );
+    let client = new DigitalOceanProvider();
+    
+    // Adding ssh key of config-srv to DigitalOcean Dashboard 
+    const pub_key = fs.readFileSync('./id_rsa.pub', 'utf-8').toString();
+    console.log("File public key: " + pub_key);
+
+    var data = 
+    {
+        "name": "Config Server SSH Public key",
+        "public_key": pub_key
+    };
+
+    const res1 = await axios.post('https://api.digitalocean.com/v2/account/keys', data, {
+        headers: headers
+    });
+
+
+    // Retrieve id of ssh key
+    const res2 = await axios.get('https://api.digitalocean.com/v2/account/keys', {
+        headers: headers
+    });
+
+    var ssh_id = res2.data.ssh_keys[0].id;
+
+    var ip1 = await spawnVM(client, "iTrust", "nyc1", "ubuntu-18-04-x64" );
     console.log(`Droplet IP of iTrust Node : ${ip1.toString()}`);
     var ip2 = await spawnVM("checkbox.io", "nyc1", "ubuntu-18-04-x64" );
     console.log(`Droplet IP of iTrust Node : ${ip2.toString()}`);
