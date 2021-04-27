@@ -75,4 +75,11 @@ async function run(privateKey, username, password) {
     result = sshSync(`ansible-playbook /bakerx/cm/itrust.yml --vault-password-file ~/.vault-pass -e git_uname=${encodeURIComponent(username)} -e git_passwd=${encodeURIComponent(password)}`, 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
+    console.log(chalk.greenBright('Setting environment for ITrust2'));
+    result = sshSync(`ansible-playbook ssh_key_generation.yml --vault-password-file ~/.vault-pass -e git_uname=${encodeURIComponent(username)} -e git_passwd=${encodeURIComponent(password)}`, 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
+
+
+
 }
