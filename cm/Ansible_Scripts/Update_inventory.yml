@@ -7,11 +7,23 @@
     monitoring_ip: "{{ monitoring_ip }}"
 
   tasks:
+  - name: Delete inventory file if it already exists.
+    file:
+      path: /bakerx/cm/Ansible_Scripts/inventory.ini
+      state: absent
+    become: yes
+
+  - name: Creating inventory.ini file
+    file:
+      path: /bakerx/cm/Ansible_Scripts/inventory.ini
+      state: touch
+    become: yes
+
   - name: Adding the iTrust IP to the inventory file
     lineinfile:
       state: present
       insertafter: EOF
-      dest: ../inventory.ini
+      dest: /bakerx/cm/Ansible_Scripts/inventory.ini
       line: "{{ item }}"
     with_items:
       - '[itrust]'
@@ -21,7 +33,7 @@
     lineinfile:
       state: present
       insertafter: EOF
-      dest: ../inventory.ini
+      dest: /bakerx/cm/Ansible_Scripts/inventory.ini
       line: "{{ item }}"
     with_items:
       - '[checkbox]'
@@ -31,7 +43,7 @@
     lineinfile:
       state: present
       insertafter: EOF
-      dest: ../inventory.ini
+      dest: /bakerx/cm/Ansible_Scripts/inventory.ini
       line: "{{ item }}"
     with_items:
       - '[monitor]'
