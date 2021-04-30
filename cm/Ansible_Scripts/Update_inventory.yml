@@ -1,0 +1,38 @@
+---
+- name: Updating the inventory file
+  hosts: localhost
+  vars:
+    itrust_ip: "{{ itrust_ip }}"
+    checkbox_ip: "{{ checkbox_ip }}"
+    monitoring_ip: "{{ monitoring_ip }}"
+
+  tasks:
+  - name: Adding the iTrust IP to the inventory file
+    lineinfile:
+      state: present
+      insertafter: EOF
+      dest: ../inventory.ini
+      line: "{{ item }}"
+    with_items:
+      - '[itrust]'
+      - '{{ itrust_ip }} ansible_user=root'
+
+  - name: Adding the checkbox_ip to the inventory file
+    lineinfile:
+      state: present
+      insertafter: EOF
+      dest: ../inventory.ini
+      line: "{{ item }}"
+    with_items:
+      - '[checkbox]'
+      - '{{ checkbox_ip }} ansible_user=root'
+  
+  - name: Adding the monitoring_ip to the inventory file
+    lineinfile:
+      state: present
+      insertafter: EOF
+      dest: ../inventory.ini
+      line: "{{ item }}"
+    with_items:
+      - '[monitor]'
+      - '{{ monitoring_ip }} ansible_user=root'

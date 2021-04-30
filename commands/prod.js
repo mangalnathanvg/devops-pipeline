@@ -188,5 +188,11 @@ async function run()
     console.log(`Droplet IP of iTrust Node : ${ip2.toString()}`);
     var ip3 = await spawnVM(client, "monitor", "nyc1", "ubuntu-18-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip3.toString()}`);
-    
+
+    // populating the inventory file with the IPs of the instances.
+    // Using ansible script to create an inventory.ini file in the config-srv.
+    console.log(chalk.greenBright('Create an inventory.ini file in the config-srv'));
+    result = sshSync(`ansible-playbook /bakerx/cm/Ansible_scripts/Update_inventory.yml -e itrust_ip=${ip1.toString()} -e checkbox_ip=${ip2.toString()} -e monitoring_ip=${ip3.toString()}`, 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
 }

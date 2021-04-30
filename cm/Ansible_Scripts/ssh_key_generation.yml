@@ -11,7 +11,8 @@
       state: absent
       path: "{{item}}"
     loop:
-      - ~/.ssh
+      - ~/.ssh/ida_rsa.pub
+      - ~/.ssh/ida_rsa
       
   - name: Generate ssh RSA host key.
     command : ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa

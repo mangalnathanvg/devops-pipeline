@@ -2,5 +2,6 @@ node_modules/
 *.retry
 .vault-pass
 cm/public_key_config_srv.pub
+cm/inventory.ini
 id_rsa
 id_rsa.pub
