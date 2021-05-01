@@ -9,13 +9,13 @@
   tasks:
   - name: Delete inventory file if it already exists.
     file:
-      path: /bakerx/cm/Ansible_Scripts/inventory.ini
+      path: /bakerx/cm/inventory.ini
       state: absent
     become: yes
 
   - name: Creating inventory.ini file
     file:
-      path: /bakerx/cm/Ansible_Scripts/inventory.ini
+      path: /bakerx/cm/inventory.ini
       state: touch
     become: yes
 
@@ -23,7 +23,7 @@
     lineinfile:
       state: present
       insertafter: EOF
-      dest: /bakerx/cm/Ansible_Scripts/inventory.ini
+      dest: /bakerx/cm/inventory.ini
       line: "{{ item }}"
     with_items:
       - '[itrust]'
@@ -33,7 +33,7 @@
     lineinfile:
       state: present
       insertafter: EOF
-      dest: /bakerx/cm/Ansible_Scripts/inventory.ini
+      dest: /bakerx/cm/inventory.ini
       line: "{{ item }}"
     with_items:
       - '[checkbox]'
@@ -43,8 +43,16 @@
     lineinfile:
       state: present
       insertafter: EOF
-      dest: /bakerx/cm/Ansible_Scripts/inventory.ini
+      dest: /bakerx/cm/inventory.ini
       line: "{{ item }}"
     with_items:
       - '[monitor]'
       - '{{ monitoring_ip }} ansible_user=root'
+
+  - name: Updating ansible.cfg to bypass SSH fingerprint set
+    become: yes
+    lineinfile:
+      dest: /etc/ansible/ansible.cfg
+      firstmatch: yes
+      insertafter: '\[defaults]'
+      line: 'host_key_checking = False'

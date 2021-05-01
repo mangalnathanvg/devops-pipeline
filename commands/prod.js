@@ -89,9 +89,6 @@ class DigitalOceanProvider
 
         if( !response ) return;
 
-        console.log(response.statusCode);
-        console.log(response.body);
-
         if(response.statusCode == 202)
         {	
             var droplet_id = JSON.parse(response.body).droplet.id
@@ -141,12 +138,12 @@ async function spawnVM(client, name, region, image, ssh_id){
     
     var dropletId1 = await client.createDroplet(name, region, image, ssh_id);
     var dropletId = dropletId1.toString();
-    console.log(dropletId);
+    console.log("Droplet ID: ", dropletId);
     
     await sleep(50000, `Spawing Instance ${name} .... Waiting for a minute for services to be up.`);
 
     var dropletPubIP = await client.dropletInfo(dropletId1);
-    console.log(dropletPubIP);
+
     await sleep(3000, '');
     return dropletPubIP
 }
@@ -162,7 +159,6 @@ async function run()
     // Adding ssh key of config-srv to DigitalOcean Dashboard 
     // Make sure that pipeline prod up should be run in the root directory of the project
     const pub_key = fs.readFileSync('./cm/public_key_config_srv.pub', 'utf-8').toString();
-    console.log("File public key: " + pub_key);
 
     var data = 
     {
