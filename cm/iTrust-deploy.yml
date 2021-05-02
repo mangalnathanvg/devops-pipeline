@@ -1,0 +1,11 @@
+- name: Logging into the iTrust VM 
+  hosts: itrust
+  vars_files:
+          - ./vars/vars.yml
+
+  roles:
+          - java
+          - mysql
+          - maven
+          - InstallChrome         
+          - iTrust 
