@@ -178,11 +178,11 @@ async function run()
 
     var ssh_id = res2.data.ssh_keys[0].id;
 
-    var ip1 = await spawnVM(client, "iTrust", "nyc1", "ubuntu-18-04-x64", ssh_id);
+    var ip1 = await spawnVM(client, "iTrust", "nyc1", "ubuntu-20-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip1.toString()}`);
-    var ip2 = await spawnVM(client, "checkbox.io", "nyc1", "ubuntu-18-04-x64", ssh_id);
+    var ip2 = await spawnVM(client, "checkbox.io", "nyc1", "ubuntu-20-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip2.toString()}`);
-    var ip3 = await spawnVM(client, "monitor", "nyc1", "ubuntu-18-04-x64", ssh_id);
+    var ip3 = await spawnVM(client, "monitor", "nyc1", "ubuntu-20-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip3.toString()}`);
 
     // populating the inventory file with the IPs of the instances.

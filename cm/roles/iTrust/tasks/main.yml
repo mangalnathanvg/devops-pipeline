@@ -9,6 +9,7 @@
     url: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.0.M27/bin/apache-tomcat-9.0.0.M27.tar.gz
     dest: /opt
   when: tomcatPath.stat.exists == False
+  become: yes
 
 - name: Unzip the tar files
   unarchive:
@@ -16,14 +17,17 @@
     src: /opt/apache-tomcat-9.0.0.M27.tar.gz
     dest: /opt
   when: tomcatPath.stat.exists == False
+  become: yes
 
 - name: Extract tar files
   command: mv apache-tomcat-9.0.0.M27 tomcat
   args:
     chdir: /opt
   when: tomcatPath.stat.exists == False
+  become: yes
 
 - name: Set environment variables of tomcat
+  become: yes
   lineinfile:
     path: /etc/environment
     line: CATALINA_HOME="/opt/tomcat"
@@ -38,12 +42,15 @@
     src: tomcat-users.xml
     dest: /opt/tomcat/conf/tomcat-users.xml
     mode: 0500
+  become: yes
 
 - name: Copy tomcat war file for deployment
   copy:
     src: iTrust2.war
     dest: /opt/tomcat/webapps/
     force: yes
+  become: yes
 
 - name: Start the Tomcat
   shell: nohup sh /opt/tomcat/bin/startup.sh
+  become: yes

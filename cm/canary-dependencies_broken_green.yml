@@ -1,0 +1,8 @@
+- hosts: green_server
+  vars_files:
+    - ./vars/vars.yml
+  roles:
+    - nodejs_installation
+    - mongodb_installation
+    - nginx_installation
+    - pm2_installation

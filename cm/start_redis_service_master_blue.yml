@@ -1,0 +1,21 @@
+---
+- name: Run redis service on master blue node.
+  hosts: blue_server
+
+  vars_files: 
+    - ./vars/vars.yml
+  
+  tasks:
+  - name: npm Install
+    command: npm install
+    args:
+      chdir: '$HOME/checkbox.io-micro-preview'
+
+  - name: Delete old pm2 processes
+    command: pm2 kill
+    ignore_errors: yes
+  
+  - name: Start checkbox server using pm2
+    command: pm2 start index.js
+    args:
+      chdir: '$HOME/checkbox.io-micro-preview'

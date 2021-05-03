@@ -1,0 +1,6 @@
+---
+- hosts: proxy_server
+  vars_files:
+    - ./vars/vars.yml
+  roles:
+    - redis_installation

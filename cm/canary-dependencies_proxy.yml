@@ -1,0 +1,4 @@
+- hosts: proxy_server
+  roles:
+    - nodejs_installation
+    - pm2_installation
