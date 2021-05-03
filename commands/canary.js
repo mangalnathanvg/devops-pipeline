@@ -4,9 +4,14 @@ const path = require('path');
 const os = require('os');
 const yaml = require('js-yaml');
 const fs = require('fs');
-
+const mwu = require('mann-whitney-utest');
 const scpSync = require('../lib/scp');
 const sshSync = require('../lib/ssh');
+
+const BLUE = path.join(__dirname, '../Monitoring/dashboard/', 'blue.json');
+const GREEN = path.join(__dirname, '../Monitoring/dashboard/', 'green.json')
+const REPORT = path.join(__dirname, '../canaryReport');
+
 exports.command = 'canary <master_branch> <broken_branch>';
 exports.builder = yargs => {
     yargs.options({
@@ -53,6 +58,72 @@ async function spawn_instances() {
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 }
 
+async function canaryReport(master, broken)
+{
+    const blueData = JSON.parse(await fs.readFileSync(BLUE, 'utf8'));
+    const greenData = JSON.parse(await fs.readFileSync(GREEN, 'utf8'));
+
+    console.log('\n----------CANARY REPORT!----------\n');
+
+    var canaryScore = {
+        'cpu': '',
+        'memory': '',
+        'latency': '',
+        'sysload': '',
+        'statusCode': ''
+    };
+
+    var pass = 0;
+    for (metric in blue_metrics) {
+      if (metric == 'name'){
+        continue
+      }
+      var len = Math.min(green_metrics[metric].length, blue_metrics[metric].length);
+      var samples = [green_metrics[metric].slice(green_metrics[metric].length - len), blue_metrics[metric].slice(blue_metrics[metric].length - len)];
+      var u = mwu.test(samples);
+
+      if (!mwu.check(u, samples)) {
+        console.error('Something went wrong!');
+      }
+      else {
+      if (mwu.significant(u, samples)) {
+        canaryScore[metric] = 'FAIL'
+      }
+      else {
+        canaryScore[metric] = 'PASS'
+        pass += 1;
+      }
+    }
+  }
+
+    var result;
+    if (canaryScore['statusCode'] == 'PASS') {    
+      if (pass / 7 >= 0.5)
+        result = "The canary result is : " + 'PASS';
+      else
+        result =  "The canary result is : " + 'FAIL';
+    }
+    else {
+      result = `Green Server wasn't responsive\nThe canary result is : ` + 'FAIL';
+    }
+
+    console.log(canaryScore)
+    console.log(result);  
+
+    var report = '***** REPORT *****\n\n';
+
+    for (metric in canaryScore) {
+      report += metric + ':' + canaryScore[metric] + '\n'
+    }
+    report += '\n' + result
+
+    fs.writeFileSync(`${REPORT}_${blue_branch}_${green_branch}.txt`, report, 'utf8');
+
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function configure_servers(master, broken){    
     (async () => {
@@ -103,5 +174,20 @@ async function configure_servers(master, broken){
     console.log(`Running redis service on broken (green) node ${green_server_ip}.....`);
     result = await sshSync(`ansible-playbook /bakerx/cm/start_redis_service_broken_green.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, `vagrant@192.168.33.20`);
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
+    // start_agents() both blue and green - /Monitoring/agents/index.js - Done
+
+    // start_dashboard()
+
+    console.log('Generating Report....');
+
+    while(true){
+        if(fs.existsSync(BLUE) && fs.existsSync(GREEN)){
+            break;
+        }
+        await sleep(5000);
+    }
+
+    await canaryReport(master, broken);
 
 }

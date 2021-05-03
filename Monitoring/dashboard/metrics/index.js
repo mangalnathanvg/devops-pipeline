@@ -3,28 +3,130 @@ const redis = require('redis');
 const got = require('got');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const httpProxy = require('http-proxy');
+var child = require('child_process');
+const { throws } = require('assert');
 
 // We need your host computer ip address in order to use port forwards to servers.
-let ip = ''
-try
-{
-	ip = fs.readFileSync(path.join(__dirname,'ip.txt')).toString();
-}
-catch(e)
-{
-	console.log(e);
-	throw new Error("Missing required ip.txt file");	
-}
 
-/// Servers data being monitored.
-var servers = 
-[
-	{name: "computer", status: "#cccccc", scoreTrend : []},
-	{name: "alpine-01",url:`http://${ip}:9001/`, status: "#cccccc",  scoreTrend : [0]},
-	{name: "alpine-02",url:`http://${ip}:9002/`, status: "#cccccc",  scoreTrend : [0]},
-	{name: "alpine-03",url:`http://${ip}:9003/`, status: "#cccccc",  scoreTrend : [0]}
+// Metrics for canary report
+var cpuData = [];
+var memData = [];
+var sysData = [];
+var latencyData = [];
+var statusData = [];
+var serverName;
+
+const args = process.argv.slice(2);
+
+const BLUE = `http://${args[1]}:3000/preview`;
+const GREEN = `http://${args[2]}:3000/preview`;
+
+var servers = [
+	{name: 'blue', url: BLUE, status:"#cccccc", scoreTrend: [0]},
+	{name: 'green', url: GREEN, status: "#cccccc", scoreTrend: [0]}
 ];
 
+async function saveData()
+{
+	var data = {
+		name: serverName,
+		cpu: cpuData,
+		latency: latencyData,
+		memory: memData,
+		sysload: sysData,
+		statusCode: statusData
+	};
+
+	await fs.writeFileSync(`${data.name}.json`, JSON.stringify(data), 'utf8');
+
+	serverName = '';
+    cpuData = [];
+	memData = [];
+	sysData = [];
+	latencyData = [];
+	statusData = [];
+
+}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// LOAD BALANCER
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Routes traffic to BLUE for the first 1 minute and then routes traffic to GREEN for 
+	// next 1 minute before terminating proxy, blue and green servers.
+
+	class LoadBalancer
+	{
+		constructor()
+		{
+			this.ROUTE_TO = BLUE;
+			setInterval(this.sendTraffic.bind(this), 5000);
+			setTimeout(this.switchRoute.bind(this), 60000);
+		}
+
+		async load_balancer()
+		{
+			let loadBalancer = httpProxy.createProxyServer({});
+
+			let proxyServer = http.createServer(function(req, res){
+				loadBalancer.web(req, res, {target: this.ROUTE_TO});
+			});
+
+			proxyServer.listen(3080);
+		}
+
+		async switchRoute()
+		{
+			await saveData();
+			
+			this.ROUTE_TO = GREEN;
+			
+			console.log(`Routing traffic to ${this.ROUTE_TO}`);
+
+			setTimeout(async function(){
+				await saveData();
+				child.execSync('pm2 kill', {stdio: 'inherit'});
+			}, 60000);
+		}
+
+		async sendTraffic()
+		{
+			var options = {
+				headers: {
+					'Content-type': 'application/json'
+				},
+
+				body: fs.readFileSync('survey.json', 'utf8'),
+				throwHttpErrors: false, 
+				timeout: 5000
+			};
+
+			var TARGET = this.ROUTE_TO;
+
+			try{
+				got.post(this.ROUTE_TO, options)
+				.then(function(res){
+					for(var server of servers)
+					{
+						let captureServer = server;
+
+						if(captureServer.url == TARGET)
+						{
+							captureServer.statusCode = res.statusCode;
+							captureServer.latency = res.timings.response - res.timings.start;
+							updateHealth(captureServer);
+						}	
+					}
+				})
+			}
+			catch(e){
+				captureServer.statusCode = e.statusCode;
+				captureServer.latency = 5000;
+			}
+			
+		}
+	}
 
 function start(app)
 {
@@ -77,39 +179,13 @@ function start(app)
 				let payload = JSON.parse(message);
 				server.memoryLoad = payload.memoryLoad;
 				server.cpu = payload.cpu;
-				updateHealth(server);
+				server.sysload = payload.sysload;	
 			}
 		}
 	});
 
-	// LATENCY CHECK
-	var latency = setInterval( function () 
-	{
-		for( var server of servers )
-		{
-			if( server.url )
-			{
-				let now = Date.now();
-
-				// Bind a new variable in order to for it to be properly captured inside closure.
-				let captureServer = server;
-
-				// Make request to server we are monitoring.
-				got(server.url, {timeout: 5000, throwHttpErrors: false}).then(function(res)
-				{
-					// TASK 2
-					captureServer.statusCode = res.statusCode;
-					//console.log(res);
-					captureServer.latency = (res.timings.response - res.timings.start);
-				}).catch( e => 
-				{
-					// console.log(e);
-					captureServer.statusCode = e.code;
-					captureServer.latency = 5000;
-				});
-			}
-		}
-	}, 10000);
+	let loadBal = new LoadBalancer();
+	loadBal.load_balancer();
 }
 
 // TASK 3
@@ -117,6 +193,34 @@ function updateHealth(server)
 {
 	let score = 0;
 	// Update score calculation.
+	// Score calculated based on server responsiveness
+
+	if(server.statusCode == 200){
+		score+=1;
+
+		if(server.memoryLoad < 30){
+			score+=1;
+		}
+
+		if(server.latency < 100){
+			score+=1;
+		}
+
+		if(server.cpu < 30){
+			score+=1;
+		}
+
+		if(server.sysload < 30){
+			score+=1;
+		}
+	}
+
+	latencyData.push(server.latency);
+	memData.push(server.memoryLoad);
+	cpuData.push(server.cpu);
+	statusData.push(server.statusCode);
+	sysData.push(server.sysload);
+	serverName = server.name;
 
 	server.status = score2color(score/4);
 

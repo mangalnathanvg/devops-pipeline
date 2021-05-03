@@ -4,6 +4,7 @@ const path = require('path');
 const app = express();
 
 const metrics = require('./metrics/index');
+
 metrics.start(app);
 
 app.use(express.static(path.join(__dirname, 'www')));

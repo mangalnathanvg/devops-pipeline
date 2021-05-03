@@ -4,7 +4,7 @@ const os = require('os');
 const si = require('systeminformation');
 const app = express();
 
-var ip = '192.168.33.32';
+var proxy_ip = '192.168.33.32';
 
 // Calculate metrics.
 // TASK 1:
@@ -24,18 +24,6 @@ class Agent
         let load = await si.currentLoad();
         return load.currentload_system.toFixed(2);
     }
-    async mongodb_memory(){
-        let load = await si.processLoad('mongod');
-        return load.mem.toFixed(2);
-    }
-    async nginx_memory(){
-        let load = await si.processLoad('nginx');
-        return load.mem.toFixed(2);
-    }
-    async mysql_memory(){
-        let load = await si.processLoad('mysqld');
-        return load.mem.toFixed(2);
-    }
 }
 
 (async () => 
@@ -51,7 +39,7 @@ async function main(name)
 {
     let agent = new Agent();
 
-    let connection = redis.createClient(6379, '192.168.44.92', {})
+    let connection = redis.createClient(6379, proxy_ip, {})
     connection.on('error', function(e)
     {
         console.log(e);
@@ -66,10 +54,7 @@ async function main(name)
         let payload = {
             memoryLoad: agent.memoryLoad(),
             cpu: await agent.cpu(),
-            sysload: await agent.sysload(),
-            nginx: await agent.nginx_memory(),
-            mysql: await agent.mysql_memory(),
-            mongodb: await agent.mongodb_memory()
+            sysload: await agent.sysload()
         };
         let msg = JSON.stringify(payload);
         await client.publish(name, msg);
