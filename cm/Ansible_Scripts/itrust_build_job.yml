@@ -46,6 +46,9 @@
         stage('warfile'){
           sh '(cd ./iTrust2-v8/iTrust2 && mvn compile war:war)'
         }
+        stage('copy warfile'){
+          sh '(yes | cp ./iTrust2-v8/iTrust2/target/iTrust2-0.0.1-SNAPSHOT.war /bakerx/cm/roles/iTrust/files/iTrust2.war)'
+        }
       }
 
 # For jacoco reference: https://stackoverflow.com/questions/41893846/jacoco-coverage-in-jenkins-pipeline
