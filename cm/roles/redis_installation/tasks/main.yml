@@ -1,0 +1,34 @@
+---
+- name: Update apt repo and cache on all Debian/Ubuntu boxes.
+  become: yes
+  apt: 
+    update_cache: yes 
+    force_apt_get: yes 
+    cache_valid_time: 3600
+
+- name: Install redis on the proxy server.
+  become: yes
+  apt:
+    name: redis-server
+    state: latest
+
+- name: Changing the bind port.
+  become: yes
+  lineinfile:
+    path: /etc/redis/redis.conf
+    line: bind 0.0.0.0 ::1
+    regex: "^bind 127.0.0.1 ::1"
+    state: present
+
+- name: Changing the supervised parameter.
+  become: yes
+  lineinfile:
+    path: /etc/redis/redis.conf
+    line: supervised systemd
+    regex: "^supervised no"
+    state: present
+
+- name: Restart redis.service
+  shell: 'systemctl restart redis.service'
+  become: yes
+

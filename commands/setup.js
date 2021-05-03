@@ -47,6 +47,12 @@ async function run(privateKey, username, password) {
     let result = child.spawnSync(`bakerx`, `run config-srv focal --ip 192.168.33.20 -m 4096 --sync`.split(' '), {shell:true, stdio: 'inherit'} );
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
+    // Copying the insecure_private_key to the config-srv
+    console.log('Installing privateKey on configuration server');
+    let identifyFile = privateKey || path.join(os.homedir(), '.bakerx', 'insecure_private_key');
+    result = scpSync( identifyFile, `vagrant@192.168.33.20:/home/vagrant/.ssh/deploy_rsa`);
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
     console.log(chalk.blueBright('Running init script...'));
     result = sshSync('/bakerx/cm/server-init.sh', 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
