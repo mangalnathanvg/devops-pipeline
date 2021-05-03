@@ -7,7 +7,7 @@ const fs = require('fs');
 const mwu = require('mann-whitney-utest');
 const scpSync = require('../lib/scp');
 const sshSync = require('../lib/ssh');
-
+const waitssh = require('waitssh');
 const BLUE = path.join(__dirname, '../Monitoring/dashboard/', 'blue.json');
 const GREEN = path.join(__dirname, '../Monitoring/dashboard/', 'green.json')
 const REPORT = path.join(__dirname, '../canaryReport');
@@ -125,10 +125,29 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+async function waitForSSH(sshInfo)
+{
+    try{
+        await waitssh(sshInfo);
+    } catch (error)
+    {
+        console.error(error);
+        process.exit(1);
+    }
+}
+
 async function configure_servers(master, broken){    
     (async () => {
         await spawn_instances();
     })();
+
+    let sshInfoBlue = {port: 22, hostname: blue_server_ip};
+    let sshInfoGreen = {port: 22, hostname: green_server_ip};
+    let sshInfoProxy = {port: 22, hostname: proxy_server_ip};
+
+    await waitForSSH(sshInfoBlue);
+    await waitForSSH(sshInfoGreen);
+    await waitForSSH(sshInfoProxy);
 
     // Populating the inventory file for the canary analysis
     console.log(`Populating the inventory file for the canary analysis....`);
