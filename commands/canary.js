@@ -55,40 +55,40 @@ async function spawn_instances() {
 
 
 async function configure_servers(master, broken){    
-    // (async () => {
-    //     await spawn_instances();
-    // })();
+    (async () => {
+        await spawn_instances();
+    })();
 
-    // // Populating the inventory file for the canary analysis
-    // console.log(`Populating the inventory file for the canary analysis....`);
-    // let result = sshSync(`ansible-playbook /bakerx/cm/canary_populate_inventory.yml -e blue_server_ip=${blue_server_ip} -e green_server_ip=${green_server_ip} -e proxy_server_ip=${proxy_server_ip}`, 'vagrant@192.168.33.20');
-    // if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    // Populating the inventory file for the canary analysis
+    console.log(`Populating the inventory file for the canary analysis....`);
+    let result = sshSync(`ansible-playbook /bakerx/cm/canary_populate_inventory.yml -e blue_server_ip=${blue_server_ip} -e green_server_ip=${green_server_ip} -e proxy_server_ip=${proxy_server_ip}`, 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-    // // Cloning Repository
-    // // Checkout the checkbox.io-micro-preview from the git repository
-    // console.log(`CLone the checkbox.io-micro-preview to the master (Blue) node.....`);
-    // result = await sshSync(`git clone --single-branch --branch master https://github.com/chrisparnin/checkbox.io-micro-preview.git`, `vagrant@${blue_server_ip}`);
-    // if (result.error) { console.log(result.error); process.exit(result.status); }
+    // Cloning Repository
+    // Checkout the checkbox.io-micro-preview from the git repository
+    console.log(`CLone the checkbox.io-micro-preview to the master (Blue) node.....`);
+    result = await sshSync(`git clone --single-branch --branch master https://github.com/chrisparnin/checkbox.io-micro-preview.git`, `vagrant@${blue_server_ip}`);
+    if (result.error) { console.log(result.error); process.exit(result.status); }
 
-    // // Checkout the checkbox.io-micro-preview from the git repository
-    // console.log(`Clone the checkbox.io-micro-preview to the broken (Green) node.....`);
-    // result = await sshSync(`git clone --single-branch --branch broken https://github.com/chrisparnin/checkbox.io-micro-preview.git`, `vagrant@${green_server_ip}`);
-    // if (result.error) { console.log(result.error); process.exit(result.status); }
+    // Checkout the checkbox.io-micro-preview from the git repository
+    console.log(`Clone the checkbox.io-micro-preview to the broken (Green) node.....`);
+    result = await sshSync(`git clone --single-branch --branch broken https://github.com/chrisparnin/checkbox.io-micro-preview.git`, `vagrant@${green_server_ip}`);
+    if (result.error) { console.log(result.error); process.exit(result.status); }
 
-    // // Running checkbox.io dependencies playbook.
-    // console.log(`Running ansible config file to install dependencies for checkbox.io on master blue node ...`);
-    // result = sshSync(`ansible-playbook /bakerx/cm/canary-dependencies_master_blue.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, 'vagrant@192.168.33.20');
-    // if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    // Running checkbox.io dependencies playbook.
+    console.log(`Running ansible config file to install dependencies for checkbox.io on master blue node ...`);
+    result = sshSync(`ansible-playbook /bakerx/cm/canary-dependencies_master_blue.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-    // // Running checkbox.io dependencies playbook.
-    // console.log(`Running ansible config file to install dependencies for checkbox.io on broken green node ...`);
-    // result = sshSync(`ansible-playbook /bakerx/cm/canary-dependencies_broken_green.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, 'vagrant@192.168.33.20');
-    // if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    // Running checkbox.io dependencies playbook.
+    console.log(`Running ansible config file to install dependencies for checkbox.io on broken green node ...`);
+    result = sshSync(`ansible-playbook /bakerx/cm/canary-dependencies_broken_green.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-    // // Running checkbox.io dependencies playbook.
-    // console.log(`Running ansible config file to install dependencies on proxy node ...`);
-    // result = sshSync(`ansible-playbook /bakerx/cm/canary-dependencies_proxy.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, 'vagrant@192.168.33.20');
-    // if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    // Running checkbox.io dependencies playbook.
+    console.log(`Running ansible config file to install dependencies on proxy node ...`);
+    result = sshSync(`ansible-playbook /bakerx/cm/canary-dependencies_proxy.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, 'vagrant@192.168.33.20');
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     // Configure Redis
     console.log(`Configuring the Redis on the proxy_server`);
