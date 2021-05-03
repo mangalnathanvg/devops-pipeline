@@ -1,4 +1,8 @@
 ---
+- name: Wait for system to become reachable
+  wait_for_connection:
+    timeout: 120
+    
 - name: Update apt repo and cache on all Debian/Ubuntu boxes.
   become: yes
   apt: 

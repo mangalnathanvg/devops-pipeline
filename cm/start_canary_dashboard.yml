@@ -1,0 +1,24 @@
+---
+- name: Start canary dashboard.
+  hosts: proxy_server
+  vars_files:
+    - ./vars/vars.yml
+  vars:
+    - blue_ip: "{{blue_ip}}"
+    - green_ip: "{{green_ip}}"
+  
+  tasks:
+  - name: Start Dashboard on proxy server.
+    command: npm install
+    args:
+      chdir: /bakerx/Monitoring/dashboard/
+
+  - name: pm2 kill
+    command: pm2 kill
+    args:
+      chdir: /bakerx/Monitoring/dashboard/
+  
+  - name: Start the dashboard.
+    command: pm2 start bin/www -local {{blue_ip}} {{green_ip}}
+    args:
+      chdir: /bakerx/Monitoring/dashboard/
