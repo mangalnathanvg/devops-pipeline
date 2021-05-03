@@ -8,8 +8,13 @@
   tasks:
 
   - name: Upgrade all packages on servers
-    shell: "sudo apt-get update"
-  
+    shell: "apt update"
+    become: yes
+
+  - name: Resolve install errors if any
+    shell: "rm /var/lib/dpkg/lock-frontend"
+    become: yes
+
   - name: Installing Nodejs
     apt: pkg='nodejs' state='present'
     become: yes
@@ -25,10 +30,12 @@
     become: yes
 
   - name: Import the public key used by the package management system.
-    shell: "wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -"
+    shell: "wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -"
+    become: yes
 
   - name: Create a list file for MongoDB.
-    shell: 'echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list'
+    shell: 'echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list'
+    become: yes 
 
   - name: Upgrade all packages on servers
     shell: "apt-get update"
@@ -49,10 +56,12 @@
   - name: Install or update pip
     become: yes
     apt: pkg='python-pip'
+    ignore_errors: yes
 
   - name: Install or update pip3
     become: yes
     apt: pkg='python3-pip'
+    ignore_errors: yes
 
   - name: Install pymongo
     become: yes
@@ -128,20 +137,69 @@
     become: yes
     apt:
       name: nginx
-      state: latest
+      state: present
 
   - name: Start nginx service
     service:
       name: nginx
       state: started
-  
-  - name: Clone checkbox repository
-    become: yes
-    git:
-      repo: https://github.com/chrisparnin/checkbox.io.git
-      dest: '/$HOME/checkbox'
 
-  - name: Update nodejs and npm
+  - name: Clone Checbox.io
+    become: yes
+    git: 
+      repo: 'https://github.com/chrisparnin/checkbox.io.git'
+      dest: '/checkbox'
+      update: no
+
+  - name: Installing Express
+    become: yes
+    apt:
+      name: ['node-express-generator']
+      state: present
+
+  - name: Copying config file to nginx sites-available
+    become: yes
+    template:  
+      src: default.conf.j2
+      dest: '/etc/nginx/sites-available/checkbox'
+
+  - name: Remove default file in nginx
+    become: yes
+    file:
+      path: '/etc/nginx/sites-enabled/default'
+      state: absent
+
+  - name: Remove existing sites
+    become: yes
+    file:
+      path: '/etc/nginx/sites-enabled/checkbox'
+      state: absent
+
+  - name: Enable checkbox configuration
+    become: yes
+    command: ln -s /etc/nginx/sites-available/checkbox /etc/nginx/sites-enabled/checkbox
+
+  - name: Copy static content to be served by NGINX
+    become: yes
+    copy: 
+      src: "/checkbox/public_html"
+      dest: /usr/share/nginx/html
+      remote_src: yes
+
+  - name: Restart NGINX service
+    become: yes
+    service:
+      state: restarted
+      enabled: true
+      name: nginx
+
+  - name: Install checkbox packages
+    become: yes
+    npm:
+      path: /checkbox
+      state: latest
+
+  - name: Update nodejs and npm before installing server packages.
     shell: |
       npm install -g n
       n latest
@@ -149,58 +207,24 @@
       hash -d npm
       npm i
     become: yes
-
-  - name: Install dependencies on the cloud provider.
+    ignore_errors: yes
+    
+  - name: Install server-side/site packages
     become: yes
     npm:
-      path: '/$HOME/checkbox/server-side/site'
+      path: /checkbox/server-side/site
+      state: latest
 
-  - name: Delete old pm2 processes
-    command: pm2 kill
-    ignore_errors: yes
+  - name: Install forever
+    become: yes
+    shell: npm install forever -g
+  
+  - name: Kill existing forever processes
+    become: yes
+    shell: forever stopall
 
-  - name: Start checkbox server using pm2
-    command: pm2 start server.js --name checkbox.io
+  - name: Start forever checkbox server
+    become: yes
+    shell: forever start server.js
     args:
-      chdir: '$HOME/checkbox/server-side/site'
-
-  - name: Save service settings
-    command: pm2 save
-    become: true
-    args:
-      chdir: '$HOME/checkbox/server-side/site'
-
-  - name: Copy nginx default file
-    become: yes
-    copy:
-      src: '/$HOME/checkbox/local-conf/default'
-      remote_src: yes
-      dest: /etc/nginx/sites-available/
-      owner: root
-      group: root
-
-  - name: Copy nginx.conf file
-    become: yes
-    copy:
-      src: '/$HOME/checkbox/local-conf/nginx.conf'
-      remote_src: yes
-      dest: /etc/nginx/
-      owner: root
-      group: root
-
-  - name: Getting the path of HOME directory
-    shell: 'echo $HOME'
-    register: home_path
-
-  - name: Edit the root location
-    become: yes
-    lineinfile:
-      dest: /etc/nginx/sites-available/default
-      regexp: 'root /.*'
-      line: '  root {{home_path.stdout}}/checkbox/public_html;'
-
-  - name: Restart nginx
-    become: yes
-    systemd:
-      name: nginx
-      state: restarted
+      chdir: /checkbox/server-side/site
