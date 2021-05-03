@@ -1,0 +1,7 @@
+---
+- name: Starting agent sevice on the broken node (green)
+  hosts: green_server
+  vars_files:
+    - ./vars/vars.yml
+  roles:
+    - start_agent_canary_analysis

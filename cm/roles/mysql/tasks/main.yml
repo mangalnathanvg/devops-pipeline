@@ -1,5 +1,9 @@
 
 ---
+- name: Wait for system to become reachable
+  wait_for_connection:
+    timeout: 120
+    
 - name: Specify MySQL root password before installing MySQL
   become: yes
   debconf:

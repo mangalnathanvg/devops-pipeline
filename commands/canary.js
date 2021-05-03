@@ -46,15 +46,15 @@ exports.handler = async argv => {
 async function spawn_instances() {
 
     console.log(chalk.greenBright('Provisioning blue server ....'));
-    let result = child.spawnSync(`bakerx`, `run master focal --ip ${blue_server_ip} --sync`.split(' '), {shell:true, stdio: 'inherit'} );
+    let result = child.spawnSync(`bakerx`, `run master bionic --ip ${blue_server_ip} --sync`.split(' '), {shell:true, stdio: 'inherit'} );
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.greenBright('Provisioning green server ....'));
-    result = child.spawnSync(`bakerx`, `run broken focal --ip ${green_server_ip} --sync`.split(' '), {shell:true, stdio: 'inherit'} );
+    result = child.spawnSync(`bakerx`, `run broken bionic --ip ${green_server_ip} --sync`.split(' '), {shell:true, stdio: 'inherit'} );
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
     console.log(chalk.greenBright('Provisioning proxy server ....'));
-    result = child.spawnSync(`bakerx`, `run proxy focal --ip ${proxy_server_ip} --sync`.split(' '), {shell:true, stdio: 'inherit'} );
+    result = child.spawnSync(`bakerx`, `run proxy bionic --ip ${proxy_server_ip} --sync`.split(' '), {shell:true, stdio: 'inherit'} );
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 }
 
@@ -194,10 +194,22 @@ async function configure_servers(master, broken){
     result = await sshSync(`ansible-playbook /bakerx/cm/start_redis_service_broken_green.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, `vagrant@192.168.33.20`);
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
+    //start_agents() both blue and green - /Monitoring/agents/index.js - Done
+    console.log(`Starting agent on the master (blue) node .....`);
+    result = await sshSync(`ansible-playbook /bakerx/cm/start_agent_service_master_blue.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, `vagrant@192.168.33.20`);
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+
     // start_agents() both blue and green - /Monitoring/agents/index.js - Done
+    console.log(`Starting agent on the broken (green) node .....`);
+    result = await sshSync(`ansible-playbook /bakerx/cm/start_agent_service_broken_green.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini`, `vagrant@192.168.33.20`);
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    
 
-    // start_dashboard()
-
+    // start_dashboard() on the proxy server.
+    console.log(`Starting dashboard on the proxy server ....`);
+    result = await sshSync(`ansible-playbook /bakerx/cm/start_canary_dashboard.yml --vault-password-file ~/.vault-pass -i /bakerx/cm/canary_inventory.ini -e blue_ip=${blue_server_ip} -e green_ip=${green_server_ip}`, `vagrant@192.168.33.20`)
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    
     console.log('Generating Report....');
 
     while(true){

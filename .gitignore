@@ -2,5 +2,6 @@ node_modules/
 *.retry
 .vault-pass
 cm/public_key_config_srv.pub
+cm/roles/iTrust/files/iTrust2.war
 id_rsa
 id_rsa.pub

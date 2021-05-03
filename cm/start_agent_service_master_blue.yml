@@ -1,0 +1,7 @@
+---
+- name: Starting agent sevice on the master node (blue)
+  hosts: blue_server
+  vars_files:
+    - ./vars/vars.yml
+  roles:
+    - start_agent_canary_analysis
