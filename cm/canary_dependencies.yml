@@ -1,0 +1,15 @@
+- hosts: blue_server, green_server
+  gather_facts: no
+  vars_files:
+    - ./vars/vars.yml
+  roles:
+    - nodejs_installation
+    - mongodb_installation
+    - nginx_installation
+    - pm2_installation
+
+- hosts: proxy_server
+  gather_facts: no
+  roles:
+    - nodejs_installation
+    - pm2_installation

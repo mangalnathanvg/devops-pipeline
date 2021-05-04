@@ -1,23 +1,45 @@
 ---
-- name: Wait for system to become reachable
-  wait_for_connection:
-    timeout: 120
-    
-- name: Update apt repo and cache on all Debian/Ubuntu boxes.
-  become: yes
-  apt: 
-    update_cache: yes 
-    force_apt_get: yes 
-    cache_valid_time: 3600
+- name: Get the script to enable NodeSource repository
+  get_url:
+    url: 'https://deb.nodesource.com/setup_12.x'
+    dest: '/tmp/nodejs.sh'
 
-- name: Install nodejs package. 
+- name: Set execution permission for nodejs.sh script
+  file:
+    path: '/tmp/nodejs.sh'
+    mode: 'u+x'
+
+- name: Execute the script
+  become: yes
+  shell: '/tmp/nodejs.sh'
+
+- name: Install nodejs
   become: yes
   apt:
     state: present
     name: nodejs
+    
+# - name: Wait for system to become reachable
+#   wait_for_connection:
+#     timeout: 120
+    
+# - name: Update apt repo and cache on all Debian/Ubuntu boxes.
+#   become: yes
+#   apt: 
+#     update_cache: yes 
+#     force_apt_get: yes 
+#     cache_valid_time: 3600
 
-- name: Install npm package. 
-  become: yes
-  apt:
-    state: present
-    name: npm
+# - name: Install nodejs package. 
+#   become: yes
+#   apt:
+#     state: present
+#     name: nodejs
+
+# - name: Install npm package. 
+#   become: yes
+#   apt:
+#     state: present
+#     name: npm
+
+

@@ -1,96 +1,180 @@
 ---
-  - name: Wait for system to become reachable
-    wait_for_connection:
-      timeout: 120
+- name: Install gnupg
+  become: yes
+  apt:
+    name: gnupg
+    state: present
 
-  - name: Import the public key used by the package management system.
-    shell: "wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -"
+- name: Add key for mongo db from ubuntu keyserver
+  become: yes
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: 7F0CEB10
+    state: present
 
-  - name: Create a list file for MongoDB.
-    shell: "echo \"deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list"
+- name: Add missing public key for mongo
+  become: yes
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com
+    id: 4B7C549A058F8B6B
+    state: present
 
-  - name: Upgrade all packages on servers
-    shell: "sudo apt-get update"
+- name: Add mongo sources list
+  become: yes
+  lineinfile:
+    line: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse"
+    path: /etc/apt/sources.list.d/mongodb.list
+    create: yes
 
-  - name: Install the MongoDB packages.
-    shell: "sudo apt-get install -y mongodb-org"
+- name: Install mongo
+  become: yes
+  apt:
+    name: mongodb-org
+    state: latest
+    update_cache: yes
 
-  - name: Start service httpd, if not running
-    shell: "sudo systemctl start mongod"
+- name: Install pip, setuptools
+  become: yes
+  apt:
+    name:
+      - python3-pip
+      - python-pip
+      - python-setuptools
+    state: present
+    update_cache: yes
 
-  - name: Check status of mongod
-    shell: "sudo systemctl status mongod"
+- name: Install pymongo
+  become: yes
+  pip:
+    name: pymongo
+    state: present
 
-  - name: Install or update pip
-    become: yes
-    apt: pkg='python3-pip'
+- name: Start the mongodb service
+  become: yes
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: mongod
 
-  - name: Install pymongo
-    become: yes
-    pip:
-      name: pymongo
-      state: latest
+- name: Enable the mongodb service
+  become: yes
+  systemd:
+    name: mongod
+    enabled: yes
 
-  - name: Create MongoDB user
-    mongodb_user:
-      database: admin
-      name: "{{ MONGO_USER }}"
-      password: "{{ MONGO_PASSWORD }}"
-      roles: readWrite
-      state: present
+- name: Create mongo user
+  mongodb_user:
+    database: admin
+    name: "{{ MONGO_USER }}"
+    password: "{{ MONGO_PASSWORD }}"
+    state: present
+    roles: readWrite
 
-  - name: set APP_PORT
-    become: yes
-    lineinfile:
-      path: /etc/environment
-      line: APP_PORT={{APP_PORT}}
-      regex: "^APP_PORT="
-      state: present
+- name: Add the environment variables
+  become: yes
+  blockinfile:
+    path: /etc/environment
+    marker: "# MONGO ENVIRONMENT VARIABLES"
+    block: |
+      APP_PORT={{APP_PORT}}
+      MONGO_PORT={{MONGO_PORT}}
+      MONGO_USER={{MONGO_USER}}
+      MONGO_PASSWORD={{MONGO_PASSWORD}}
+      MONGO_IP={{MONGO_IP}}
+    state: present
 
-  - name: set MONGO_PORT
-    lineinfile:
-      dest: /etc/environment
-      line: MONGO_PORT={{MONGO_PORT}}
-      regexp: "^MONGO_PORT="
-      state: present
-    become: yes
+  # - name: Wait for system to become reachable
+  #   wait_for_connection:
+  #     timeout: 120
 
-  - name: set MONGO_USER
-    lineinfile:
-      dest: /etc/environment
-      line: MONGO_USER={{MONGO_USER}}
-      regexp: "^MONGO_USER="
-      state: present
-    become: yes
+  # - name: Import the public key used by the package management system.
+  #   shell: "wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -"
 
-  - name: set MONGO_PASSWORD
-    lineinfile:
-      dest: /etc/environment
-      line: MONGO_PASSWORD={{MONGO_PASSWORD}}
-      regexp: "^MONGO_PASSWORD="
-      state: present
-    become: yes
+  # - name: Create a list file for MongoDB.
+  #   shell: "echo \"deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.4 multiverse\" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list"
 
-  - name: set MONGO_PASSWORD
-    lineinfile:
-      dest: /etc/environment
-      line: MONGO_IP={{MONGO_IP}}
-      regexp: "^MONGO_IP="
-      state: present
-    become: yes
+  # - name: Upgrade all packages on servers
+  #   shell: "sudo apt-get update"
 
-  - name: Install latest package
-    become: yes
-    with_items:
-      - nodejs
-      - nginx
-      - git
-    apt:
-      name: '{{item}}'
-      state: latest
-      update_cache: yes
-      force: yes
+  # - name: Install the MongoDB packages.
+  #   shell: "sudo apt-get install -y mongodb-org"
 
-  - name: Setting the environment.
-    shell: . /etc/environment
-    become: yes
+  # - name: Start service httpd, if not running
+  #   shell: "sudo systemctl start mongod"
+
+  # - name: Check status of mongod
+  #   shell: "sudo systemctl status mongod"
+
+  # - name: Install or update pip
+  #   become: yes
+  #   apt: pkg='python3-pip'
+
+  # - name: Install pymongo
+  #   become: yes
+  #   pip:
+  #     name: pymongo
+  #     state: latest
+
+  # - name: Create MongoDB user
+  #   mongodb_user:
+  #     database: admin
+  #     name: "{{ MONGO_USER }}"
+  #     password: "{{ MONGO_PASSWORD }}"
+  #     roles: readWrite
+  #     state: present
+
+  # - name: set APP_PORT
+  #   become: yes
+  #   lineinfile:
+  #     path: /etc/environment
+  #     line: APP_PORT={{APP_PORT}}
+  #     regex: "^APP_PORT="
+  #     state: present
+
+  # - name: set MONGO_PORT
+  #   lineinfile:
+  #     dest: /etc/environment
+  #     line: MONGO_PORT={{MONGO_PORT}}
+  #     regexp: "^MONGO_PORT="
+  #     state: present
+  #   become: yes
+
+  # - name: set MONGO_USER
+  #   lineinfile:
+  #     dest: /etc/environment
+  #     line: MONGO_USER={{MONGO_USER}}
+  #     regexp: "^MONGO_USER="
+  #     state: present
+  #   become: yes
+
+  # - name: set MONGO_PASSWORD
+  #   lineinfile:
+  #     dest: /etc/environment
+  #     line: MONGO_PASSWORD={{MONGO_PASSWORD}}
+  #     regexp: "^MONGO_PASSWORD="
+  #     state: present
+  #   become: yes
+
+  # - name: set MONGO_PASSWORD
+  #   lineinfile:
+  #     dest: /etc/environment
+  #     line: MONGO_IP={{MONGO_IP}}
+  #     regexp: "^MONGO_IP="
+  #     state: present
+  #   become: yes
+
+  # - name: Install latest package
+  #   become: yes
+  #   with_items:
+  #     - nodejs
+  #     - nginx
+  #     - git
+  #   apt:
+  #     name: '{{item}}'
+  #     state: latest
+  #     update_cache: yes
+  #     force: yes
+
+  # - name: Setting the environment.
+  #   shell: . /etc/environment
+  #   become: yes
