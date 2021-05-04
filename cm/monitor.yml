@@ -1,0 +1,58 @@
+---
+# see the best practices in ansible docs for how to get started with creating roles etc.:
+# https://docs.ansible.com/ansible/latest/user_guide/playbooks_best_practices.html
+
+- hosts: monitor
+  gather_facts: false
+  become: yes
+  vars:
+    #aws_home: /home/ubuntu
+    jenkins_home: /home/vagrant
+    ansible_python_interpreter: python3
+    ip_monitor: "{{ip_monitor}}"
+  vars_files:
+    - /bakerx/cm/vars/vars.yml
+  
+  tasks:
+  - name: set environment variables - MONITOR_IP
+    lineinfile:
+      dest: /etc/environment
+      line: MONITOR_IP="{{ip_monitor}}"
+      #regexp: '^MONITOR_IP'
+      state: present
+
+  - name: Update
+    apt:
+      upgrade: "yes"
+      update_cache: yes
+      cache_valid_time: "3600"
+
+  - name: Update apt repo and cache on all Debian/Ubuntu boxes.
+    become: yes
+    apt: 
+      update_cache: yes 
+      force_apt_get: yes 
+      cache_valid_time: 3600
+
+  - name: Install nodejs package. 
+    become: yes
+    apt:
+      state: present
+      name: nodejs
+
+  - name: Install npm package. 
+    become: yes
+    apt:
+      state: present
+      name: npm
+
+  - name: Install Git
+    apt:
+      name: git
+
+  - name: install gnupg
+    apt:
+      name: gnupg
+      state: present
+  
+  

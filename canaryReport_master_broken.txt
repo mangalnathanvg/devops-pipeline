@@ -1,0 +1,10 @@
+***** REPORT *****
+
+latency:FAIL
+memory:FAIL
+cpu:PASS
+system:PASS
+statusCode:FAIL
+
+Green Server wasn't responsive
+The canary result is : FAIL

@@ -2,9 +2,27 @@ const redis = require('redis');
 const util  = require('util');
 const os = require('os');
 const si = require('systeminformation');
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
+
 const app = express();
 
-var proxy_ip = '192.168.33.32';
+app.get('/', (req, res) => res.send('Hello World!'))
+app.listen(9001,'0.0.0.0',()=>{
+      console.log("server is listening");
+})
+
+let proxy_ip = ''
+try
+{
+    proxy_ip = fs.readFileSync(path.join('./','proxy_ip.txt')).toString();
+}
+catch(e)
+{
+    console.log(e);
+    throw new Error("Missing required proxy_ip.txt file");    
+}
 
 // Calculate metrics.
 // TASK 1:
@@ -20,7 +38,7 @@ class Agent
        let load = await si.currentLoad();
        return load.currentload.toFixed(2);
     }
-    async sysload(){
+    async sysLoad(){
         let load = await si.currentLoad();
         return load.currentload_system.toFixed(2);
     }
@@ -54,7 +72,7 @@ async function main(name)
         let payload = {
             memoryLoad: agent.memoryLoad(),
             cpu: await agent.cpu(),
-            sysload: await agent.sysload()
+            sysLoad: await agent.sysLoad()
         };
         let msg = JSON.stringify(payload);
         await client.publish(name, msg);

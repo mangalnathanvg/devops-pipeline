@@ -12,8 +12,9 @@
     "express": "^4.17.1",
     "got": "^10.7.0",
     "http-errors": "^1.7.3",
-    "http-proxy": "^1.18.1",
     "redis": "^3.0.2",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "chalk": "^3.0.0",
+    "http-proxy": "^1.18.0"
   }
 }
