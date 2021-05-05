@@ -181,9 +181,9 @@ async function run()
     var ip1 = await spawnVM(client, "iTrust", "nyc1", "ubuntu-20-04-x64", ssh_id);
     console.log(`Droplet IP of iTrust Node : ${ip1.toString()}`);
     var ip2 = await spawnVM(client, "checkbox.io", "nyc1", "ubuntu-20-04-x64", ssh_id);
-    console.log(`Droplet IP of iTrust Node : ${ip2.toString()}`);
+    console.log(`Droplet IP of Checkbox Node : ${ip2.toString()}`);
     var ip3 = await spawnVM(client, "monitor", "nyc1", "ubuntu-20-04-x64", ssh_id);
-    console.log(`Droplet IP of iTrust Node : ${ip3.toString()}`);
+    console.log(`Droplet IP of Monitor Node : ${ip3.toString()}`);
 
     // populating the inventory file with the IPs of the instances.
     // Using ansible script to create an inventory.ini file in the config-srv.
@@ -191,4 +191,28 @@ async function run()
     result = sshSync(`ansible-playbook /bakerx/cm/Ansible_scripts/Update_inventory.yml -e itrust_ip=${ip1.toString()} -e checkbox_ip=${ip2.toString()} -e monitoring_ip=${ip3.toString()}`, 'vagrant@192.168.33.20');
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
+    // Populating the IPs to the json file.
+    const cloud_ip_details = {
+        itrust : ip1.toString(),
+        checkbox : ip2.toString(),
+        monitor : ip3.toString(),
+        itrust_name : 'iTrust',
+        checkbox_name : 'checkbox',
+        monitor_name : 'monitor' 
+    }
+    // const jsonString = JSON.stringify(cloud_ip_details);
+    // fs.writeFile('./cloud_ip_details.json', jsonString, err => {
+    //     if (err){
+    //         console.log(s'Error writing the file....', err);
+    //     } else {
+    //         console.log('Successfully wrote json file');
+    //     }
+    // });
+
+    fs.writeFile('./ip.txt', ip3.toString() , function(err) {
+        if (err) {
+           return console.error(err);
+        }
+        console.log("Monitor IP Data written successfully!");
+     });
 }

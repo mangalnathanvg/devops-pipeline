@@ -7,7 +7,7 @@ const scpSync = require('../lib/scp');
 const sshSync = require('../lib/ssh');
 
 exports.command = 'monitor-setup';
-exports.desc = 'Deploy monitoring setup the projects';
+exports.desc = 'Deploy the projects';
 exports.builder = (yargs) => {
   yargs.options({
     i: {
@@ -20,6 +20,7 @@ exports.builder = (yargs) => {
 exports.handler = async (argv) => {
   const { projectName } = argv;
   const inventoryFile = argv['i'];
+
   (async () => {
     await run(projectName, inventoryFile);
   })();
@@ -27,11 +28,40 @@ exports.handler = async (argv) => {
 
 async function run(projectName, inventoryFile) {
   result = sshSync(
-    `ansible-playbook "/bakerx/cm/monitor.yml" -i "/bakerx/cm/${inventoryFile} -e ip_monitor='134.209.122.71' --vault-password-file ~/.vault-pass"`,
+    `ansible-playbook "/bakerx/cm/monitor_server.yml" -i "/bakerx/cm/${inventoryFile} --vault-password-file ~/.vault-pass"`,
     'vagrant@192.168.33.20'
   );
   if (result.error) {
     console.log(result.error);
     process.exit(result.status);
   }
+
+  result = sshSync(
+    `ansible-playbook "/bakerx/cm/agent_checkbox_server.yml" -i "/bakerx/cm/${inventoryFile} --vault-password-file ~/.vault-pass"`,
+    'vagrant@192.168.33.20'
+  );
+  if (result.error) {
+    console.log(result.error);
+    process.exit(result.status);
+  }
+
+  result = sshSync(
+    `ansible-playbook "/bakerx/cm/agent_iTrust_server.yml" -i "/bakerx/cm/${inventoryFile} --vault-password-file ~/.vault-pass"`,
+    'vagrant@192.168.33.20'
+  );
+  if (result.error) {
+    console.log(result.error);
+    process.exit(result.status);
+  }
+
+  result = sshSync(
+    `rm -rf /bakerx/ip.txt`,
+    'vagrant@192.168.33.20'
+  );
+  if (result.error) {
+    console.log(result.error);
+    process.exit(result.status);
+  }
+
+
 }
