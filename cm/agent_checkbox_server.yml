@@ -1,0 +1,125 @@
+---
+- name: Configuring the checkbox.io agent node.
+  hosts: checkbox
+  vars_files:
+    - ./vars/vars.yml
+  tasks:
+ 
+  - name: Wait for system to become reachable
+    wait_for_connection:
+     timeout: 120
+      
+  - name: Update apt repo and cache on all Debian/Ubuntu boxes.
+    become: yes
+    apt: 
+      update_cache: yes 
+      force_apt_get: yes 
+      cache_valid_time: 3600
+
+  - name: Install nodejs package. 
+    become: yes
+    apt:
+      state: latest
+      name: nodejs
+
+  - name: Install npm package. 
+    become: yes
+    apt:
+      state: latest
+      name: npm
+  
+  # - name: Update nodejs and npm before installing server packages.
+  #   shell: |
+  #     npm install -g n
+  #     n latest
+  #     npm install -g npm
+  #     hash -d npm
+  #     npm i
+  #   become: yes
+  #   ignore_errors: yes
+  
+  - name: pm2 installation.
+    shell: npm install pm2 -n
+    become: yes
+  
+  - name: pm2 installation global.
+    shell: npm install pm2 -g
+    become: yes
+    
+  - name: Install redis on the proxy server.
+    become: yes
+    apt:
+      name: redis-server
+      state: latest
+
+  - name: Changing the bind port.
+    become: yes
+    lineinfile:
+      path: /etc/redis/redis.conf
+      line: bind 0.0.0.0
+      regex: "^bind 127.0.0.1 ::1"
+      state: present
+
+  - name: Changing the supervised parameter.
+    become: yes
+    lineinfile:
+      path: /etc/redis/redis.conf
+      line: supervised systemd
+      regex: "^supervised no"
+      state: present
+
+  - name: Restart redis.service
+    shell: 'systemctl restart redis.service'
+    become: yes
+  
+  - name: Create directory /bakerx
+    shell: mkdir /bakerx
+    become: yes
+  
+  - name: Copy Folder.
+    copy:
+      src: /bakerx/Monitoring_Dashboard/agent
+      dest: /bakerx/
+  
+  - name: Copy Cloud IP.txt file.
+    copy:
+      src: /bakerx/ip.txt
+      dest: /bakerx/agent
+  
+  - name: npm Install inside agent
+    command: npm install
+    args:
+      chdir: '/bakerx/agent'
+  
+  - name: toFixed npm Install 
+    command: npm install tofixed
+    args:
+      chdir: '/bakerx/agent'
+  
+  # - name: Audit Fix npm Install 
+  #   command: npm audit fix --force
+  #   args:
+  #     chdir: '/bakerx/agent'
+  #   ignore_errors: yes
+      
+  # - name: npm Install 
+  #   command: npm install
+  #   args:
+  #     chdir: '/bakerx/agent'
+
+  - name: Delete old pm2 processes
+    command: pm2 kill
+    ignore_errors: yes
+  
+  - name: Changing the node name to checkbox.
+    become: yes
+    lineinfile:
+      path: /bakerx/agent/index.js
+      line:     main('checkbox');
+      regex: "agent_node"
+      state: present
+  
+  - name: Start checkbox server using pm2
+    shell: "pm2 start index.js"
+    args:
+      chdir: '/bakerx/agent'
