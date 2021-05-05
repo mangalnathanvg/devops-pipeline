@@ -1,3 +1,20 @@
+- name: Wait for proxy to be available
+  hosts: localhost
+  
+  vars:
+    proxy: '192.168.33.32'
+  
+  tasks: 
+
+  - name: Wait for proxy VM 
+    wait_for:
+        host: "{{proxy}}"
+        port: 22
+        delay: 10
+        timeout: 30
+        state: started
+        msg: "BLUE PORT is not Listening"
+
 - hosts: proxy_server
   roles:
     - nodejs_installation

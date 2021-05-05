@@ -1,3 +1,31 @@
+
+- name: Wait for VMs to be available
+  hosts: localhost
+  
+  vars:
+    blue: '192.168.33.30'
+    green: '192.168.33.31'
+  
+  tasks: 
+
+  - name: Wait for blue VM 
+    wait_for:
+        host: "{{blue}}"
+        port: 22
+        delay: 10
+        timeout: 30
+        state: started
+        msg: "BLUE PORT is not Listening"
+
+  - name: Wait for green VM 
+    wait_for:
+        host: "{{green}}"
+        port: 22
+        delay: 10
+        timeout: 30
+        state: started
+        msg: "GREEN PORT is not Listening"
+
 - hosts: blue_server, green_server
   gather_facts: no
   vars_files:
@@ -8,8 +36,7 @@
     - nginx_installation
     - pm2_installation
 
-- hosts: proxy_server
-  gather_facts: no
-  roles:
-    - nodejs_installation
-    - pm2_installation
+
+  
+  
+
