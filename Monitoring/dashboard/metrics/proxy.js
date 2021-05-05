@@ -7,13 +7,16 @@ const http = require('http');
 const httpProxy = require('http-proxy');
 var child  = require('child_process'); 
 
+// Sending traffic to each server for 1 min
 const SEND_DURATION = 60000;
 
+// Sending traffic to each server every 2 seconds for a total of 1 min
 const TRAFFIC_INTERVAL = 2000;
 
+// Survey file sent to checkbox microservice
 const SURVEY = 'survey.json';
 
-// Our arrays for metrics for final report generation
+// Metrics collected for canary report.
 var cpuData = [];
 var memData = [];
 var sysData = [];
@@ -23,14 +26,17 @@ var serverName;
 
 let args = process.argv.slice(2);
 
+// Checkbox servers running on blue and green machines
 const BLUE = `http://${args[1]}:3000/preview`;
 const GREEN = `http://${args[2]}:3000/preview`;
 
+// Required for Monitoring dashboard
 var	servers = 
 	[
 	{name: "blue", url:`http://${args[1]}:3000/preview`, status: "#cccccc",  scoreTrend : [0]},
 	{name: "green", url:`http://${args[2]}:3000/preview`, status: "#cccccc",  scoreTrend : [0]}
 	];
+
 
 async function saveData() 
 {
@@ -54,7 +60,7 @@ async function saveData()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-/// LOAD BALANCER
+/// LOAD BALANCER - Proxy server that directs traffic to either blue or green checkbox server
 //////////////////////////////////////////////////////////////////////////////////////////
 
 class LoadBalancer
@@ -66,6 +72,7 @@ class LoadBalancer
 		setTimeout( this.switchRoute.bind(this), SEND_DURATION );
     }
 
+	// Load balancer server
     async load_balancer()
     {
         let options = {};
@@ -82,6 +89,7 @@ class LoadBalancer
 		server.listen(3080);	
    }
 
+   // Switch route from blue to green after 1 min
    async switchRoute()
    {
 	  await saveData();
@@ -96,10 +104,9 @@ class LoadBalancer
 	}, SEND_DURATION); 
    } 
    
-
+   // Send traffic to server every 2 seconds.
    async sendTraffic() {
        
-            // console.log(chalk.keyword('orange')(`******* ${this.TARGET} *******`));
             var options = {
                 headers: {
                     'Content-type': 'application/json'
@@ -110,6 +117,7 @@ class LoadBalancer
 			};
 
 			let time_snapshot = Date.now();
+			
 			var CURRENT_TARGET = this.TARGET;
 			
 			try {
@@ -201,42 +209,8 @@ async function updateHealth(server)
 {
 	let score = 0;
 	// Update score calculation.
-	if (server.statusCode == 200) {
 
-		score += 1
-
-		if (server.latency < 50) {
-
-			score += 1
-		}
-		else if (server.latency < 100) {
-
-			score += 0.75
-		}
-		else if (server.latency < 2000) {
-
-			score += 0.5
-		}
-		
-		if (server.memoryLoad < 90 ) {
-
-			score += 1
-		}
-		else if (server.memoryLoad < 100) {
-	
-			score += 0.5
-		}
-	
-		if (server.cpu < 50) {
-	
-			score += 1
-		}
-
-		else if (server.cpu < 100) {
-			score += 0.5
-		}
-	}
-
+	// Save metrics collected.
 	latencyData.push(server.latency);
 	memData.push(server.memoryLoad);
 	cpuData.push(server.cpu);

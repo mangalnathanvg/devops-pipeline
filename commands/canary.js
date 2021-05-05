@@ -9,7 +9,7 @@ const sshSync = require('../lib/ssh');
 const scpSync = require('../lib/scp');
 
 exports.command = 'canary <blue_branch> <green_branch>';
-exports.desc = 'Run Canary Analysis on the given branches';
+exports.desc = 'Run Canary Analysis on the input branches';
 
 const PASS = 'PASS';
 const FAIL = 'FAIL';
@@ -44,7 +44,7 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function provision_servers() {
+async function provisionServers() {
     console.log(chalk.keyword('orange')('\nProvisioning Proxy server...'));
     let result = child.spawnSync(`bakerx`, `run proxy bionic --ip ${proxy_ip} --sync`.split(' '), {shell:true, stdio: 'inherit', cwd: path.join(__dirname, "../Monitoring/dashboard")} );
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
@@ -58,19 +58,17 @@ async function provision_servers() {
     if( result.error ) { console.log(result.error); process.exit( result.status ); }
 }
 
-async function configure_redis() {
+async function setupRedis() {
   console.log(chalk.keyword('orange')('\nInstalling and configuring redis-server on Proxy...'));
   let srcFile = path.join(__dirname, '../cm/redis.sh');
   
   result = await scpSync(srcFile, `vagrant@${proxy_ip}:/home/vagrant/redis.sh`);
       if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-  result = await sshSync('chmod 700 redis.sh', `vagrant@${proxy_ip}`);
-
-  result = await sshSync('./redis.sh', `vagrant@${proxy_ip}`);
+  result = await sshSync('chmod 700 redis.sh; ./redis.sh', `vagrant@${proxy_ip}`);
 }
 
-async function clone_repositories(branch, ip) {
+async function cloneRepositories(branch, ip) {
   // Clone checkbox microservice
   console.log('\nBranch: ', branch, " IP: ", ip);
 
@@ -79,18 +77,9 @@ async function clone_repositories(branch, ip) {
     console.log(result.error);
     process.exit(result.status);
   }
-
-  // // Switch to branch
-  // console.log(chalk.keyword('orange')(`Switching to ${branch}...`));
-  // await sleep(2000);
-  // result = await sshSync(`cd checkbox.io-micro-preview && git fetch && git checkout ${branch}`, `vagrant@${ip}`);
-  // if (result.error) {
-  //   console.log(result.error);
-  //   process.exit(result.status);
-  // }
 }
 
-async function start_dashboard() {
+async function startAutomatedAnalysis() {
   let result = await sshSync(`cd /bakerx ; npm install`, `vagrant@${proxy_ip}`);
   if (result.error) {
     console.log(result.error);
@@ -100,19 +89,19 @@ async function start_dashboard() {
   sshSync(`cd /bakerx ; pm2 kill; pm2 start bin/www -- local ${blue_ip} ${green_ip}`, `vagrant@${proxy_ip}`);
 }
 
-async function start_agents() {
+async function startMetricAgents() {
   console.log(chalk.keyword('orange')('\nSaving monitor ip in the agent VMs.'));
   
   fs.writeFileSync(path.join(__dirname, "../Monitoring/agent/", "proxy_ip.txt"), proxy_ip, {encoding: 'utf8', flag: "w"});
 
-  console.log(chalk.blueBright('\nStarting the agent on blue...'));
+  console.log(chalk.blueBright('\nStarting metric agent on blue...'));
   result = await sshSync(`cd /bakerx ; rm -rf package-lock.json; npm install --no-bin-links ; pm2 restart blue_agent;  pm2 start index.js --name blue_agent -- blue`, `vagrant@${blue_ip}`);
 
-  console.log(chalk.greenBright('\nStarting the agent on green...'));
+  console.log(chalk.greenBright('\nStarting metric agent on green...'));
   result = await sshSync(`cd /bakerx ; rm -rf package-lock.json; npm install --no-bin-links ; pm2 restart green_agent; pm2 start index.js --name green_agent -- green`, `vagrant@${green_ip}`);
 }
 
-async function start_checkbox() {
+async function initializeCheckbox() {
     // Install dependencies
   console.log(chalk.blueBright(`\nInstalling checkbox dependencies on blue...`));
   let result = await sshSync(`cd checkbox.io-micro-preview/; npm install`, `vagrant@${blue_ip}`);
@@ -147,11 +136,12 @@ async function run_playbook_proxy() {
     }
 }
 
-async function generateReport(blue_branch, green_branch) {
+async function generateCanaryReport(blue_branch, green_branch) {
+
     const blue_metrics = JSON.parse(await fs.readFileSync(BLUE, 'utf8'));
     const green_metrics = JSON.parse(await fs.readFileSync(GREEN, 'utf8'));
 
-    console.log(chalk.keyword('magenta')('\n********** REPORT **********'));
+    console.log(chalk.keyword('magenta')('\n********** CANARY REPORT **********'));
 
     var canaryScore = {
       'latency': '',
@@ -161,6 +151,7 @@ async function generateReport(blue_branch, green_branch) {
       'statusCode': ''
     };
 
+    // Statistical analysis using Mann-Whitney-Utest
     var pass = 0;
     for (metric in blue_metrics) {
       if (metric == 'name'){
@@ -187,17 +178,19 @@ async function generateReport(blue_branch, green_branch) {
   var result;
   if (canaryScore['statusCode'] == PASS) {    
     if (pass / 5 >= 0.5)
-      result = "The canary result is : " + PASS;
+      result = "Final canary outcome : " + PASS;
     else
-      result =  "The canary result is : " + FAIL;
+      result =  "Final canary outcome : " + FAIL;
   }
   else {
-    result = `Green Server wasn't responsive\nThe canary result is : ` + FAIL;
+    result = `Green Server returns 500\nFinal canary outcome : ` + FAIL;
   }
 
   console.log(canaryScore)
+
   console.log(result);  
-  var report = '***** REPORT *****\n\n';
+  
+  var report = '\n\n******** CANARY REPORT ********\n\n';
 
   for (metric in canaryScore) {
     report += metric + ':' + canaryScore[metric] + '\n'
@@ -207,74 +200,96 @@ async function generateReport(blue_branch, green_branch) {
   fs.writeFileSync(`${REPORT}_${blue_branch}_${green_branch}.txt`, report, 'utf8');
 }
 
-// async function shutDown() {
-//     console.log(chalk.keyword('orange')('Shutting down canaries'));
-//     let result = await child.spawnSync(`bakerx`, `delete vm blue`.split(' '), {shell:true, stdio: 'inherit'} );
-//     if( result.error ) { console.log(result.error); process.exit( result.status ); }
+async function tearDown() {
+    console.log(chalk.keyword('orange')('\nShutting down canary VMs'));
+    let result = await child.spawnSync(`bakerx`, `delete vm blue`.split(' '), {shell:true, stdio: 'inherit'} );
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-//     result = await child.spawnSync(`bakerx`, `delete vm green`.split(' '), {shell:true, stdio: 'inherit'} );
-//     if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    result = await child.spawnSync(`bakerx`, `delete vm green`.split(' '), {shell:true, stdio: 'inherit'} );
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-//     console.log(chalk.keyword('orange')('Shutting down proxy'));
-//     result = await child.spawnSync(`bakerx`, `delete vm proxy`.split(' '), {shell:true, stdio: 'inherit'} );
-//     if( result.error ) { console.log(result.error); process.exit( result.status ); }
+    console.log(chalk.keyword('orange')('Shutting down proxy/load balancer'));
+    result = await child.spawnSync(`bakerx`, `delete vm proxy`.split(' '), {shell:true, stdio: 'inherit'} );
+    if( result.error ) { console.log(result.error); process.exit( result.status ); }
 
-//     await deleteFile(BLUE);
-//     await deleteFile(GREEN);
-// }
+    await deleteFile(BLUE);
+    await deleteFile(GREEN);
+}
 
-// async function deleteFile(file) {
-//   fs.unlinkSync(file, (err) => {
-//     if (err) {
-//       console.log(chalk.redBright(err));
-//       process.exit(err.code);
-//     }
-//     console.log('File deleted');
-//   })
-// }
+async function deleteFile(file) {
+  fs.unlinkSync(file, (err) => {
+    if (err) {
+      console.log(chalk.redBright(err));
+      process.exit(err.code);
+    }
+    console.log('File deleted');
+  })
+}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));p
 }
 
-async function run(blue_branch, green_branch) {
-    // await provision_servers();
+// Run canary analysis on the metrics generated by the Metric agents and display result
+async function runCanaryAnalysis(blue_branch, green_branch)
+{
+  // Start checkbox microservice on blue and green
+  await initializeCheckbox();   
+   
+  // Collect metrics by starting metric agents on blue and green
+  await startMetricAgents(); 
 
-    // //await sleep(5000);
+  // Collect metrics from blue and green through proxy/load balancer server
+  await startAutomatedAnalysis(); 
 
-    // console.log(chalk.keyword('orange')('\nCloning repositories...'));
-    
-    // await clone_repositories(blue_branch, blue_ip);
-    
-    // await clone_repositories(green_branch, green_ip);
-    
-    // await sleep(5000);
+  console.log(chalk.keyword('orange')('\nWaiting for canary report........'));
 
-    //await run_playbook_BG();
+  // Continue once metrics data (blue.json and green.json) are generated.
+  while (true) {
 
-    //await run_playbook_proxy();
-
-    // await sleep(5000);
-    //await configure_redis();
-
-    //await start_checkbox();   
-    
-    //await start_agents(); 
-
-    await start_dashboard(); 
-
-    // // Wait for completion of canary analysis and then generate report
-    console.log(chalk.keyword('orange')('Waiting to generate report...'));
-
-    while (true) {
-
-      if (fs.existsSync(BLUE) && fs.existsSync(GREEN)) { 
-        break;
-      }
-      await sleep(5000);
+    if (fs.existsSync(BLUE) && fs.existsSync(GREEN)) { 
+      break;
     }
-    
-    await generateReport(blue_branch, green_branch);
+    await sleep(5000);
+  }
+  
+  // Generate canary report
+  await generateCanaryReport(blue_branch, green_branch);
 
-    // shutDown();
+  // Tear down the monitoring infrastructure (optional)
+  tearDown();
+}
+
+async function cloneCheckbox(blue, green)
+{
+    console.log(chalk.keyword('orange')('\nCloning repositories...'));
+
+    await cloneRepositories(blue, blue_ip);
+    
+    await cloneRepositories(green, green_ip);
+}
+
+// Provisioning VMs and cloning checkbox microservice in blue and green VMs
+async function buildSetup(blue_branch, green_branch)
+{
+    await provisionServers();
+  
+    await cloneCheckbox(blue_branch, green_branch)
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///// MAIN FUNCTION - In case of connection timeout run each of these functions one at a time.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+async function run(blue_branch, green_branch) {
+    
+    await buildSetup(blue_branch, green_branch);
+  
+    await run_playbook_BG();
+
+    await run_playbook_proxy();
+
+    await setupRedis();
+
+    await runCanaryAnalysis(blue_branch, green_branch);
 }
