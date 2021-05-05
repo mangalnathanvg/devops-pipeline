@@ -19,6 +19,8 @@ Milestones:
 
 [Build Milestone](#build-milestone-m1)
 
+
+
 # Deploy Milestone (M3)
 
 * Provision cloud instances and setup monitoring infrastructure.
@@ -34,50 +36,80 @@ Milestones:
 <br />
 
 ### Instructions to Setup and Run
-0. If you are running in wondows, make sure you run dos2unix on the 2 files: cm/server-init.sh and cm/redis.sh.
+* If you are running in windows, make sure you run `dos2unix` on the 2 files: `cm/server-init.sh` and `cm/redis.sh` before running any commands.
+* Create a `.vault-pass` file in project directory (`/bakerx`) containing `csc-devops-2020`. This is needed to decrypt `cm/vars/vars.yml` required for accessing ansible variables throughout multiple scripts.
 
-1. Configure jenkins, build environments, build jobs.
+* Configure jenkins, build environments, build jobs.
+
 ```
 pipeline setup --gh-user $GIT_USER --gh-pass $GIT_PASS
 ```
-Note: Before running above setup command, the $GIT_USER and $GIT_PASS must be configured in the environment system variables in the local machine.
+Note: Before running above setup command, the $GIT_USER and $GIT_PASS must be configured in the environment system variables in your local machine.
 
-2. Provision cloud instances
-Note: Make sure you have an account on digital ocean and there is no SSH key associated with it. If yes, delete the SSH key and then run the command below.
+
+
+* Provision cloud instances
+
+  Note: Make sure you have an account on digital ocean and there is no SSH key associated with it. If yes, delete the SSH key and then run the command below.
+
 ```
 pipeline prod up
 ```
 
-3. Setup monitoring infrastructure on given infrastructure
+
+
+* Setup monitoring infrastructure on given infrastructure
+
 ```
 pipeline monitor-setup -i inventory.ini
 ```
 
-4. Deploy checkbox.io with given inventory.
-```
-pipeline deploy checkbox -i inventory.ini
-```
 
-5. Trigger a build job for iTrust and generate a 'war' file for deployment in tomcat server.
-```
-pipeline build iTrust -u <admin> -p <admin>
+
+* Deploy checkbox.io with given inventory (For local deployment of both checkbox and iTrust, please use `bionic` images. DO NOT USE `focal` IMAGES). 
 
 ```
+pipeline deploy checkbox.io -i inventory.ini
+```
 
-6. Deploy iTrust on a server given in inventory.ini.
+
+
+* Trigger a build job for iTrust and generate a 'war' file for deployment in tomcat server.
+
+```
+pipeline build iTrust -u admin -p admin
+```
+
+
+
+* Deploy iTrust on a server given in inventory.ini.
+
 ```
 pipeline deploy iTrust -i inventory.ini
 ```
 
-7. Perform canary analysis. 
-Note:
-- We were facing connections issues while running this. In case you face errors while running this command due to ssh, please comment out completed parts and rerun the same command untill the flow completes.
 
-- If you are using different IP addresses for proxy, blue and green servers, make sure you upate the IP addresses in cm/canary_input_file.yml accordingly. Currently this file consists of default IP addresses for proxy, blue and green servers.
+
+* Perform canary analysis on master and broken. 
 
 ```
 pipeline canary master broken
 ```
+
+
+
+* Perform canary analysis on master and master
+
+```
+pipeline canary master master
+```
+
+
+
+**Note:**
+
+- We were facing connections issues while running this. It was resolved by using retries in ansible scripts. In case you face connection timeout errors while running this command due to ssh, run all the function calls individually in `run()` inside `/commands/canary.js`
+- If you are using different IP addresses for proxy, blue and green servers, make sure you upate the IP addresses in cm/canary_input_file.yml accordingly. Currently this file consists of default IP addresses for proxy, blue and green servers.
 
 <br />
 
@@ -88,40 +120,44 @@ pipeline canary master broken
 ####  Provision cloud instances.
 
   * Major Learning Outcomes and Challenges Faced:
-    -  Spawning of instances on different cloud provider vendors like digital ocean and aws. For our project we used digital ocean.
+    -  Spawning of instances on different cloud provider vendors like `digitalocean` and `aws`. For our project we used `digitalocean`.
     -  Creation of tokens and working with API's to interact with the cloud instances.
-    -  Ansible scripts to configure iTrust and checkbox dependencies on the cloud nodes.
-	-  Monitoring setup and running redis server to collect the metrics of the iTrust and checkbox node to display on the monitoring dashboard.
+    -  Ansible scripts to configure `iTrust` and `checkbox` dependencies on the cloud nodes.
+	-  Monitoring setup and running `redis` server to collect the metrics of `iTrust` and `checkbox` node to display on the monitoring dashboard.
 	
   * Challenges Faced: 
-    - Creation of ssh keys and using them to login to the cloud instances was challenging.
+    - Creation of `ssh` keys and using them to login to the cloud instances was challenging.
 	- Packages installation to bring up the monitoring setup.
 	- Learning about API to spawn instances with public key of the config server.
-    
 
 <br />
 
 #### Deploy checkbox.io and iTrust
 
   * Major Learning Outcomes
-    - Extended the provisioning workshop and learnt how to provision VMs on Digital Ocean API through ansible.
-	- Studied how to generate war file using maven for deployment
-	- Learnt about tomcat server and it's use in deployment.
-    
+    - Extended the provisioning workshop and learnt how to provision VMs on Digital Ocean API through `ansible`.
+	- Studied how to generate `war` file using `maven` for deployment
+	- Learnt about `tomcat` server and it's use in deployment.
+    - Setting up `nginx` and changing configuration to serve static files through the internet.
     
    * Challenges Faced: 
-     - Starting tomcat server using the start script made the system to hang indefinitely, stopping the entire pipeline. We used nohup to ensure a safe return from terminal while the tomcat was still running.
-     - Deploying the war file to cloud using jenkins job was a challegning task.
+     - Starting tomcat server using the start script made the system to hang indefinitely, stopping the entire pipeline. We used `nohup` to ensure a safe return from terminal while the `tomcat` server was still running.
+     - Deploying the war file to cloud using `jenkins` job was a challenging task.
+     - Faced a lot of ambiguity and confusion in setting up `nginx` because of inconsistencies in config file generation.
 
 <br />
 
 ####  Canary Analysis
 
 * Major Learning Outcomes
-  - 
+  - Setting up the canary infrastructure based on diagram provided and starting necessary servers on each of the servers (proxy, blue and green)
+  - More experience about using `pm2` to start servers and debug errors occurred
+  - Using `got` to send traffic to each of the servers
+  - Understanding how a non parametric test such as `Mann-Whitney-Utest` can be used to determine difference in metrics from blue and green server and to determine whether canary analysis passed or failed.
 * Challenges Faced:
-  -
-
+  * Understanding the concepts required to setup canary infrastructure and to implement logic to perform canary analysis
+  * A lot of connection refused and timeout errors had to bee debugged and resolved efficiently.
+  * Each run takes a lot of time thereby causing significant time overheads during testing. 
 
 <br />
 
@@ -143,9 +179,9 @@ pipeline canary master broken
 ### Distribution of tasks
 
 * Provision cloud instances - Sharath Bangalore Ramesh Kumar
-* Deploy checkbox.io - Mangalnathan Vijayagopal
-* Deploy iTrust - Niranjan Pandeshwar
-* Canary Analysis - Mangalnathan Vijayagopal, Sharath Bangalore Ramesh Kumar
+* Deploy checkbox.io to cloud/local VMs - Mangalnathan Vijayagopal
+* Deploy iTrust to cloud/local VMs - Niranjan Pandeshwar
+* Canary Analysis Implementation and Testing - Mangalnathan Vijayagopal
 * Monitoring Dashboard - Sharath Bangalore Ramesh Kumar, Niranjan Pandeshwar
 * Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
 
@@ -222,7 +258,6 @@ pipeline build checkbox.io -u <admin> -p <admin>
     - With jacoco plugin the implementation was confusing since we have to give parameters like - execPattern, classPattern, sourcePattern etc. But referring to following stack overflow link helped us in implementing jacoco as part of the jenkins build job for iTrust.
     - For style check we had to copy checkstyle-result.xml from the iTrust target repo to jenkins working directory for recording the issues using the tool checkstyle.
     - For Jacoco to mention the threshold of branch coverage, instruction coverage, class coverage and method coverage, parameters had to be passed while running the build job. This [link](https://www.jenkins.io/doc/pipeline/steps/jacoco/) was helpful in doing the task.
-    
 
 <br />
 
@@ -237,7 +272,6 @@ pipeline build checkbox.io -u <admin> -p <admin>
    * Challenges Faced: 
      - Running 1000 iterations would take very long time and system resources.
      - Network connectivity interruptions caused a lot of delay in performing tasks.
-     
 
 <br />
 
@@ -278,7 +312,7 @@ pipeline build checkbox.io -u <admin> -p <admin>
 ### Distribution of tasks
 
 * Automatically configure a build environment and build job for a Java application (iTrust) - Sharath Bangalore Ramesh Kumar
-* Implement a test suite analysis for detecting useful tests - Niranjan Pandeshwar
+* Implement a test suite analysis for detecting useful tests - Mangalnathan Vijayagopal, Niranjan Pandeshwar
 * Implement a static analysis for detecting code smells - Mangalnathan Vijayagopal
 * Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
 
@@ -362,7 +396,6 @@ pipeline build checkbox.io -u admin -p admin
   ```
   
   - For  building the job in jenkins we needs addition plugins like jenkins job builder, jmespath and download jenkins CLI which was used in build pipeline.
-  
 #### Build Environment for Checkbox.io
 
 * Major Learning Outcomes:
