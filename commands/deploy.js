@@ -31,6 +31,12 @@ exports.handler = async (argv) => {
 };
 
 async function run(projectName, inventoryFile) {
+
+  if(projectName=='checkbox.io')
+  {
+      projectName = 'checkbox';
+  }
+  
   result = sshSync(
     `ansible-playbook "/bakerx/cm/${projectName}-deploy.yml" -i "/bakerx/cm/${inventoryFile} --vault-password-file ~/.vault-pass"`,
     'vagrant@192.168.33.20'
