@@ -1,0 +1,10 @@
+---
+- name: SCP to a remote server.
+  hosts: checkbox, itrust
+  become: yes
+  
+  tasks:
+  - name: Copy Folder.
+    copy:
+      src: /bakerx/Monitoring_Dashboard/agent
+      dest: /bakerx/

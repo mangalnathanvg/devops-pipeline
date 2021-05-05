@@ -1,0 +1,10 @@
+---
+- name: SCP to a remote server.
+  hosts: monitor
+  become: yes
+  
+  tasks:
+  - name: Copy Folder.
+    copy:
+      src: /bakerx/Monitoring_Dashboard/dashboard
+      dest: /bakerx/
