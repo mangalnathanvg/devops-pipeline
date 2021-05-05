@@ -13,9 +13,138 @@ Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-
 
 Milestones:
 
+[Deploy Milestone](#deploy-milestone-m3)
+
 [Test Milestone](#test-milestone-m2)
 
 [Build Milestone](#build-milestone-m1)
+
+# Deploy Milestone (M3)
+
+* Provision cloud instances and setup monitoring infrastructure.
+* Implement deployment to cloud instances.
+* Implement canary analysis (checkbox.io preview microservice)
+
+<br />
+
+### Design Architecture
+
+![image](https://media.github.ncsu.edu/user/16849/files/d93eca00-ad28-11eb-95de-b403a592a35c)
+
+<br />
+
+### Instructions to Setup and Run
+
+1. Configure jenkins, build environments, build jobs.
+```
+pipeline setup --gh-user $GIT_USER --gh-pass $GIT_PASS
+```
+Note: Before running above setup command, the $GIT_USER and $GIT_PASS must be configured in the environment system variables in the local machine.
+
+2. Provision cloud instances
+Note: Make sure you have an account on digital ocean and there is no SSH key associated with it. If yes, delete the SSH key and then run the command below.
+```
+pipeline prod up
+```
+
+3. Setup monitoring infrastructure on given infrastructure
+```
+pipeline monitor-setup -i inventory.ini
+```
+
+4. Deploy checkbox.io with given inventory.
+```
+pipeline deploy checkbox -i inventory.ini
+```
+
+5. Trigger a build job for iTrust and generate a 'war' file for deployment in tomcat server.
+```
+pipeline build iTrust -u <admin> -p <admin>
+
+```
+
+6. Deploy iTrust on a server given in inventory.ini.
+```
+pipeline deploy iTrust -i inventory.ini
+```
+
+7. Perform canary analysis. 
+Note: We were facing connections issues while running this. In case you face errors while running this command due to ssh, please comment out completed parts and rerun the same command untill the flow completes.
+```
+pipeline canary master broken
+```
+
+<br />
+
+### Challenges Faced and Major Learning Outcomes
+
+<br />
+
+####  Provision cloud instances.
+
+  * Major Learning Outcomes and Challenges Faced:
+    -  Spawning of instances on different cloud provider vendors like digital ocean and aws. For our project we used digital ocean.
+    -  Creation of tokens and working with API's to interact with the cloud instances.
+    -  Ansible scripts to configure iTrust and checkbox dependencies on the cloud nodes.
+	-  Monitoring setup and running redis server to collect the metrics of the iTrust and checkbox node to display on the monitoring dashboard.
+	
+  * Challenges Faced: 
+    - Creation of ssh keys and using them to login to the cloud instances was challenging.
+	- Packages installation to bring up the monitoring setup.
+	- Learning about API to spawn instances with public key of the config server.
+    
+
+<br />
+
+#### Deploy checkbox.io and iTrust
+
+  * Major Learning Outcomes
+    - Extended the provisioning workshop and learnt how to provision VMs on Digital Ocean API through ansible.
+	- Studied how to generate war file using maven for deployment
+	- Learnt about tomcat server and it's use in deployment.
+    
+    
+   * Challenges Faced: 
+     - Starting tomcat server using the start script made the system to hang indefinitely, stopping the entire pipeline. We used nohup to ensure a safe return from terminal while the tomcat was still running.
+     - Deploying the war file to cloud using jenkins job was a challegning task.
+
+<br />
+
+####  Canary Analysis
+
+* Major Learning Outcomes
+  - 
+* Challenges Faced:
+  -
+
+
+<br />
+
+
+### Screencast
+
+[Provision cloud instances and Monitoring Dashboard](https://drive.google.com/file/d/1Un5TiPmx-NptZq0wNX0L-8M9Iif6OfxQ/view?usp=sharing)
+
+[Deploy checkbox.io and iTrust](https://drive.google.com/file/d/1kTDUuCrnWFGNSl-9PlA17_z6d5opUIZc/view?usp=sharing)
+
+[Canary Analysis master broken](https://screencast-o-matic.com/watch/crhhcDVe8ih)
+
+[Canary Analysis master master](https://screencast-o-matic.com/watch/crhhVQVe82z)
+
+
+<br />
+
+
+### Distribution of tasks
+
+* Provision cloud instances - Sharath Bangalore Ramesh Kumar
+* Deploy checkbox.io - Mangalnathan Vijayagopal
+* Deploy iTrust - Niranjan Pandeshwar
+* Canary Analysis - Mangalnathan Vijayagopal, Sharath Bangalore Ramesh Kumar
+* Monitoring Dashboard - Sharath Bangalore Ramesh Kumar, Niranjan Pandeshwar
+* Documentation and Screencast - Mangalnathan Vijayagopal, Niranjan Pandeshwar, Sharath Bangalore Ramesh Kumar
+
+<br />
 
 # Test Milestone (M2)
 
