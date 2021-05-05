@@ -114,7 +114,7 @@ function start(app)
 				}).catch( e => 
 				{
 					// console.log(e);
-					captureServer.statusCode = 200;
+					captureServer.statusCode = e.code;
 					captureServer.latency = Date.now() - now;
 				});
 			}
