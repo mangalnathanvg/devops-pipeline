@@ -136,6 +136,16 @@ async function run_playbook_proxy() {
     }
 }
 
+async function createCanaryInventory() {
+  console.log(chalk.keyword('orange')('\nCreating canary inventory file...'));
+    const cmd = `ansible-playbook --vault-password-file ~/.vault-pass /bakerx/cm/canary_populate_inventory.yml -e blue_server_ip=${blue_ip} -e green_server_ip=${green_ip} -e proxy_server_ip=${proxy_ip}`;
+    result = await sshSync(cmd,`vagrant@${config_srv_ip}`);
+    if (result.error) {
+        console.log(result.error);
+        process.exit(result.status);
+    }
+}
+
 async function generateCanaryReport(blue_branch, green_branch) {
 
     const blue_metrics = JSON.parse(await fs.readFileSync(BLUE, 'utf8'));
@@ -283,6 +293,8 @@ async function buildSetup(blue_branch, green_branch)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 async function run(blue_branch, green_branch) {
     
+    await createCanaryInventory();
+
     await buildSetup(blue_branch, green_branch);
   
     await run_playbook_BG();
