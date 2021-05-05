@@ -29,11 +29,12 @@ Milestones:
 
 ### Design Architecture
 
-![image](https://media.github.ncsu.edu/user/16849/files/d93eca00-ad28-11eb-95de-b403a592a35c)
+![image](https://media.github.ncsu.edu/user/16849/files/c25aa080-ad45-11eb-8b9a-87d39c8faf19)
 
 <br />
 
 ### Instructions to Setup and Run
+0. If you are running in wondows, make sure you run dos2unix on the 2 files: cm/server-init.sh and cm/redis.sh.
 
 1. Configure jenkins, build environments, build jobs.
 ```
@@ -69,7 +70,11 @@ pipeline deploy iTrust -i inventory.ini
 ```
 
 7. Perform canary analysis. 
-Note: We were facing connections issues while running this. In case you face errors while running this command due to ssh, please comment out completed parts and rerun the same command untill the flow completes.
+Note:
+- We were facing connections issues while running this. In case you face errors while running this command due to ssh, please comment out completed parts and rerun the same command untill the flow completes.
+
+- If you are using different IP addresses for proxy, blue and green servers, make sure you upate the IP addresses in cm/canary_input_file.yml accordingly. Currently this file consists of default IP addresses for proxy, blue and green servers.
+
 ```
 pipeline canary master broken
 ```
