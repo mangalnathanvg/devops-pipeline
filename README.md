@@ -37,15 +37,14 @@ Milestones:
 
 ### Instructions to Setup and Run
 * If you are running in windows, make sure you run `dos2unix` on the 2 files: `cm/server-init.sh` and `cm/redis.sh` before running any commands.
-
-  
+* Create a `.vault-pass` file in project directory (`/bakerx`) containing `csc-devops-2020`. This is needed to decrypt `cm/vars/vars.yml` required for accessing ansible variables throughout multiple scripts.
 
 * Configure jenkins, build environments, build jobs.
 
 ```
 pipeline setup --gh-user $GIT_USER --gh-pass $GIT_PASS
 ```
-Note: Before running above setup command, the $GIT_USER and $GIT_PASS must be configured in the environment system variables in the local machine.
+Note: Before running above setup command, the $GIT_USER and $GIT_PASS must be configured in the environment system variables in your local machine.
 
 
 
@@ -78,7 +77,7 @@ pipeline deploy checkbox.io -i inventory.ini
 * Trigger a build job for iTrust and generate a 'war' file for deployment in tomcat server.
 
 ```
-pipeline build iTrust -u <admin> -p <admin>
+pipeline build iTrust -u admin -p admin
 ```
 
 
