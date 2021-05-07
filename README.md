@@ -9,12 +9,11 @@
 |2. | Niranjan Pandeshwar     |   nrpandes|
 |3. | Sharath Bangalore Ramesh Kumar | sbangal2|
 
-## Final Project Demo 
-   [Click here](https://drive.google.com/file/d/1LJlEg-8gMaVcBeQdVnPOfys6lgWY64Ij/view?usp=sharing)
+### Final Project Demo [Click here](https://drive.google.com/file/d/1LJlEg-8gMaVcBeQdVnPOfys6lgWY64Ij/view?usp=sharing)
+   
+### Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects): 
 
-Access Project Board [here](https://github.ncsu.edu/cscdevops-spring2021/DEVOPS-20/projects): 
-
-Milestones:
+### Milestones:
 
 [Deploy Milestone](#deploy-milestone-m3)
 
